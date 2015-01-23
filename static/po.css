@@ -1,0 +1,93 @@
+/*
+print tool style
+ */
+.general-print-box ul,
+.general-print-box dl,
+.general-print-box dt,
+.general-print-box dd{margin: 0;padding: 0;}
+.general-print-box pre{margin: 0 !important; padding: 10px 12px;font-family:inherit;}
+.general-print-box strong{font-weight:bold !important;}
+.general-print-ar-content:hover,
+.general-print-ar-content-hover{
+  border-left-style:solid;
+  border-radius:2px;
+  box-shadow: -3px 0 5px #BABABA;
+  -webkit-box-shadow: -3px 0 5px #BABABA;
+  -moz-box-shadow: -3px 0 5px #BABABA;
+}
+.general-print-box dt{overflow-x:auto;border-bottom: 1px solid #EAE9DB;padding-left:1.4rem;transition: all 400ms ease-in 100ms;
+  -webkit-transition: all 400ms ease-in 100ms;-moz-transition: all 400ms ease-in 100ms;-o-transition: all 400ms ease-in 100ms;}
+.general-print-box dt:hover{background-color: #EFEBDA;color: #F29840;}
+.general-print-box dt>div{display: inline-block; line-height: 2;/* overflow-x: auto; position: relative;top: 2px;*/}
+.general-print-box dt>div.array-key{min-width: 120px;max-width: 380px;color:#426BD5; }
+/*.general-print-box dt>div.array-value{width: 89.88%;}*/
+.general-print-box dd{margin-left:1.4rem;border-left: 1px dashed #B39F99;}
+.general-print-box{
+  overflow-x:auto;border: 1px solid #C6C6D5;border-top: none;
+  display: block;line-height: 1.4;margin: 0 2rem;background-color: #FCF9F1;color:#316476;
+  text-shadow: 0 1px 0 #F4F4F4;font-size: 100%;white-space:nowrap;text-align:left;
+}
+.general-print-shadow{
+  box-shadow: 1px 1px 10px #E8E6E3 inset,-1px 1px 2px #BBB9A6;
+  -moz-box-shadow: 1px 1px 10px #E8E6E3 inset,-1px 1px 2px #BBB9A6;
+  -webkit-box-shadow: 1px 1px 10px #E8E6E3 inset,-1px 1px 2px #BBB9A6;
+}
+.general-print-code{
+  display:block;padding:2px 4px;font-size:14px;color:#CC3300;border-radius: .2rem;line-height:26px;font-family:inherit;
+}
+ span.print-icon{height:14px;width:14px;line-height:14px;display:inline-block;border:1px solid #DBD7D7;border-radius:2px;position:absolute;left:2px;top:4px;}
+ .general-print-box dt:hover span.print-icon,
+ span.print-icon:hover{border:1px solid #F29840;}
+ span.icon-show:after{padding:2px 4px;content:'+';}
+ span.icon-hide:after{padding:2px 4px;content:'-';}
+.general-print-span{
+  display: inline-block;min-width: 200px;color: #d44950;max-width: 340px;font-size: 13px;font-family:inherit;
+}
+.general-print-font{font: 13px/1.5 Menlo, Monaco, Consolas, 'Courier New', monospace;}
+.general-print-pos {
+  position:relative;
+  padding: 5px 15px;border: 1px solid #C6C6D5;border-radius: 5px 5px 0 0;font-size:smaller;margin:1rem 2rem 0;background-color:#3D300D;color:#eee;
+}
+.general-pos-info{padding:0;margin:0;display:inline-block;color:#F2D68A;cursor:default;min-width: 85%;}
+.general-print-pos>span{height:20px;position:absolute;cursor:pointer;font-weight:bold;}
+.general-print-pos>span:hover{color:#fefefe;}
+.general-print-help{ right:96px;top:12px;line-height:0.1;font-size:22px;color:#3ECB17; }
+.general-print-code{ right:50px;top:2px;font-size:45px;line-height:0.1;color:#F2D68A; }
+.general-print-switch{ right:20px;top: 5px;font-size:25px;line-height:0.7; color:#F08989;}
+.general-print-color-dg { color: #003300;} /*dark green 深绿*/
+.general-print-color-r { color: #d44950;} /*red 红色*/
+.general-print-color-lb { color: #287590;}  /*light blue  浅蓝*/
+.general-print-color-g { color: #999;}
+.general-print-bar {
+  position:relative;
+  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr = '#ffffff', endColorstr = '#EFEBDA');
+  /*INNER ELEMENTS MUST NOT BREAK THIS ELEMENTS BOUNDARIES*/
+  /*Element must have a height (not auto)*/
+  /*All filters must be placed together*/
+  -ms-filter: "progid: DXImageTransform.Microsoft.gradient(startColorstr = '#ffffff', endColorstr = '#EFEBDA')";
+  /*Element must have a height (not auto)*/
+  /*All filters must be placed together*/
+  background-image: -moz-radial-gradient(left, #ffffff, #EFEBDA);
+  background-image: -ms-radial-gradient(left, #ffffff, #EFEBDA);
+  background-image: -o-radial-gradient(left, #ffffff, #EFEBDA);
+  background-image: -webkit-gradient(radial, center left, center right, from(#ffffff), to(#EFEBDA));
+  background-image: -webkit-radial-gradient(left, #ffffff, #EFEBDA);
+  background-image: radial-gradient(left, #ffffff, #EFEBDA);
+  /*--IE9 DOES NOT SUPPORT GRADIENT BACKGROUNDS--*/
+}
+.general-print-bar-hover{
+  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr = '#fcf9f1', endColorstr = '#DACEBC');
+  /*INNER ELEMENTS MUST NOT BREAK THIS ELEMENTS BOUNDARIES*/
+  /*Element must have a height (not auto)*/
+  /*All filters must be placed together*/
+  -ms-filter: "progid: DXImageTransform.Microsoft.gradient(startColorstr = '#fcf9f1', endColorstr = '#DACEBC')";
+  /*Element must have a height (not auto)*/
+  /*All filters must be placed together*/
+  background-image: -moz-linear-gradient(top, #fcf9f1, #DACEBC);
+  background-image: -ms-linear-gradient(top, #fcf9f1, #DACEBC);
+  background-image: -o-linear-gradient(top, #fcf9f1, #DACEBC);
+  background-image: -webkit-gradient(linear, center top, center bottom, from(#fcf9f1), to(#DACEBC));
+  background-image: -webkit-linear-gradient(top, #fcf9f1, #DACEBC);
+  background-image: linear-gradient(top, #fcf9f1, #DACEBC);
+  /*--IE9 DOES NOT SUPPORT GRADIENT BACKGROUNDS--*/
+}

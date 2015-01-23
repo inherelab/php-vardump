@@ -1,0 +1,700 @@
+<?php
+/**
+ * @link https://github.com/inhere/simple-print-tool.git
+ * Created by sublime 3.
+ * Auth: Inhere
+ * Date: 14-11-26
+ * Time: 10:35
+ * Des :  General Print output test -- Po 常用打印输出测试
+ * ********************** 常用输出测试方法 **********************
+ * @param mixed $inputData
+ * Use : 是 √ 否 X
+ * +--------------------------------------------------------------------------------------+
+ * |     -----        | 是否可打印   | 打印时是否  | 打印后是否   |      补充说明            |
+ * |  (方法)函数使用   |  多个参数    |  类型输出   | 会退出程序   |                         |
+ * |------------------+-------- ----+------------+-------------+-------------------------|
+ * | d() | Po::d()    |       √     |     √      |      X      |                         |
+ * |------------------|-------- ----|------------|-------------|                         |
+ * | de() | Po::de()  |       √     |     √      |      √      |                         |
+ * |------------------|-------- ----|------------|-------------|                         |
+ * | p() | Po::p()    |       √     |     X      |      X      |                         |
+ * |------------------|-------- ----|------------|-------------|                         |
+ * | pe() | Po::pe()  |       √     |     X      |      √      |                         |
+ * |------------------+-------- ----+------------+-------------+-------------------------|
+ * | pr() | Po::pr()  |       √     |     X      |      X      |  pr()等同于print_r(),    |
+ * |------------------|-------- ----|------------|-------------|  但可以传入多个参数       |
+ * | vd() | Po::vd()  |       √     |     √      |      X      |  vd()等同于var_dump()    |
+ * +--------------------------------------------------------------------------------------+
+ * 若使用了命名空间 类方法调用 需在最前加上'\'。 @example \Po::d($arg1,$arg2,$arg3,...);
+ **/
+
+include_once __DIR__.'/helpers/DumpHelper.php';
+include_once __DIR__.'/helpers/StaticInvokHelper.php';
+
+class Po extends StaticInvokHelper
+{
+    static private $instance      = null;
+
+    # 数组内容显示隐藏 控制 class name
+    static public $controlClass   = 'js-control-showOrHide';
+    static private $hasStyle      = false; # 标记样式是否已经输出
+    static private $ajaxPrepare   = false; # 标记样式是否已经输出
+
+    /**
+     * $disabled 禁用输出，设置后将不会打印数据。
+     * use: 在打印前调用 Po::disabled(); 页面将不会有任何打印数据输出
+     * @var boolean
+     */
+    static private $disabled      = false;
+
+    /**
+     * $hidden 是否展开打印数据，默认展开
+     * use: 在打印前调用 Po::hidden() 可默认收缩隐藏打印数据
+     */
+    static private $hidden        = false;
+
+    /**
+     * $detectAjax 开启侦测Ajax请求 @todo 未完善
+     * use: 在打印前调用 Po::detectAjax()
+     * @var boolean
+     */
+    static private $detectAjax    = false;
+
+    public $exit                  = false; // 是否退出
+    public $positionData; // 打印位置信息数据
+    public $inputData;
+    public $outputData;
+    public $numberArg; // 参数个数
+    public $lastArg;   // 传入的最后一个参数
+
+    public function __construct()
+    {
+        // $this->_versionCheck();
+    }
+
+    static public function owner()
+    {
+        if (self::$instance == null) {
+            self::$instance = new self;
+        }
+
+        return self::$instance;
+    }
+
+    /**
+     * @extends
+     * 允许静态调用的方法设置 @example Po::p() --> protected function p()
+     * @return array|string [type] [description]
+     */
+    protected function allowInvokerCall()
+    {
+        return array('d','p','de','pe','vd','pr','uc');
+    }
+
+    /**
+     * invoking 函数调用者]
+     * @param  string $methodName   要调用的方法名]
+     * @param  array  $data         数据]
+     * @return void
+     */
+    public function invoking($methodName,array $data)
+    {
+
+        $positionData = $this->calledPosition()->positionData;
+
+        if (!DumpHelper::isAjax()) {
+            echo $positionData;
+        }
+
+        if ( method_exists($this, $methodName) )
+        {
+            $this->$methodName($data);
+            $outputData = $this->outputData;
+
+            if ( DumpHelper::isAjax()) {
+                $output     = array(
+                    'position' => str_replace(PHP_EOL, '', $positionData),
+                    'content'  => strip_tags($outputData)
+                );
+                $outputData = json_encode($output).',';
+            }
+            else if (DumpHelper::isCliMode()) {
+                $outputData = strip_tags( str_replace('&rArr;', '=>', $outputData) );
+            }
+
+            self::quit($outputData,$this->exit);
+        } else {
+            self::quit('The Class <b>'.__CLASS__."</b> don't has method $methodName() !");
+        }
+        // if (DumpHelper::isAjax() || DumpHelper::isCliMode() ) {
+        //   echo PHP_EOL.'<<<<<< '.$methodName.'() print out end ......',PHP_EOL;
+        // }
+    }
+
+################### 调用系统函数打印输出
+
+    /**
+     * vd === var_dump
+     * @param $param
+     * @param string $outString
+     * @internal param string $value description]
+     * @return void
+     */
+    protected function vd($param,$outString= '')
+    {
+        $last = array_pop($param);
+
+        foreach ($param as $key => $value) {
+            $outString .= $this->dump($value,true,true);
+        }
+
+        if ($last === '_4') {
+            $this->exit = true;
+        }
+        else {
+            $outString .= $this->dump($last,true,true);
+        }
+
+        $this->outputData = $outString;
+    }
+
+    /**
+     * pr === print_r 但支持传入多个参数
+     * @param $param
+     * @param string $outString
+     * @internal param string $value
+     * @return void
+     */
+    protected function pr($param,$outString= '')
+    {
+        $last = array_pop($param);
+
+        foreach ($param as $key => $value) {
+            $outString .= $this->dump($value,false,true);
+        }
+        if ($last === '_4') {
+            $this->exit = true;
+        }
+        else {
+            $outString .= $this->dump($last,false,true);
+        }
+
+        $this->outputData = $outString;
+    }
+
+################### 打印输出，不含类型
+
+    /**
+     * 多个打印
+     * @param $param
+     * @param string $outString
+     * @return void
+     */
+    protected function p($param,$outString= '')
+    {
+        $last = array_pop($param);
+
+        foreach ($param as $key => $value) {
+            $outString .= $this->dump($value,false);
+        }
+
+        if ($last === '_4') {
+            $this->exit   = true;
+        }
+        else {
+            $outString .= $this->dump($last,false);
+        }
+
+        $this->outputData = $outString;
+    }
+
+    /**
+     * 多个打印,会退出
+     * @param $param
+     * @param string $outString
+     * @return void
+     */
+    protected function pe($param,$outString= '')
+    {
+        $last = array_pop($param);
+
+        foreach ($param as $key => $value) {
+            $outString .= $this->dump($value,false);
+        }
+
+        $this->exit       = true;
+
+        if ($last === '_5') {
+            $this->exit  = false;
+        }
+        else {
+            $outString .= $this->dump($last,false);
+        }
+
+        $this->outputData = $outString;
+    }
+
+################### 打印输出，含数据类型
+
+    /**
+     * 打印一个或者多个参数： 可以传入多个参数；最后一个若为 _4 则退出程序
+     * d($arg1,$arg2,$arg3,...)
+     */
+    protected function d($param,$outString= '')
+    {
+        $last = array_pop($param);
+
+        foreach ($param as $key => $value) {
+            $outString .= $this->dump($value);
+        }
+
+        if ($last === '_4') {
+            $this->exit   = true;
+        }
+        else {
+            $outString .= $this->dump($last);
+        }
+
+        $this->outputData = $outString;
+    }
+
+    /**
+     * 同d(),但是打印后会立即退出程序；最后一个若为 _5 则放弃退出
+     * @param $param
+     * @param string $outString
+     * @return void
+     */
+    protected function de($param,$outString= '')
+    {
+        $last = array_pop($param);
+
+        foreach ($param as $value) {
+            $outString .= $this->dump($value);
+        }
+
+        $this->exit       = true;
+
+        if ($last === '_5') {
+            $this->exit   = false;
+        }
+        else {
+            $outString .= $this->dump($last);
+        }
+
+        $this->outputData = $outString;
+    }
+
+    /**
+     * 打印用户定义常量 user constant
+     * @internal param bool $return description]
+     * @return void
+     */
+    protected function uc()
+    {
+        $const = get_defined_constants(true);
+
+        if (!isset($const['user'])) {
+            $this->outputData = $this->dump( null );
+        } else {
+            $this->outputData = $this->dump( $const['user'] );
+        }
+    }
+
+################### 打印输出设置
+
+    static public function hidden($value=true)
+    {
+        self::$hidden = (bool)$value;
+    }
+
+    static public function disabled($value=true)
+    {
+        self::$disabled = (bool)$value;
+    }
+
+    // 开启侦测Ajax请求 @todo 未完善
+    static public function detectAjax($value=true)
+    {
+        if ($value==='end' && DumpHelper::isAjax() ) {
+            self::quit();
+        } else {
+            self::$detectAjax = (bool)$value;
+        }
+    }
+
+    ################### 打印输出数据解析
+
+    /**
+     * 格式化打印数组，含类型 长度 ==var_dump
+     * @param mixed $data
+     * @param bool | int $hasType 输出类型
+     * @param bool | int $useSystemPrint 使用系统函数打印
+     * @return string
+     * @internal param bool|int $exit
+     */
+    private function dump($data, $hasType=true, $useSystemPrint=false)
+    {
+        $style = '';
+
+        if ( self::$hidden ) {
+            $style = ' style="display:none;"';
+        }
+
+        $outString = "<!-- output print start -->\n<div class=\"general-print-box general-print-font general-print-shadow\" $style>\n%s</div>\n<!-- output print end -->".PHP_EOL;
+
+        # 使用系统函数打印
+        if ( $useSystemPrint ) {
+            $result       = self::getSystemPrintData($data,$hasType);
+            $outString    = sprintf($outString,$result);
+        }# 自定义函数
+        else {
+            $result       = self::_handleTypeOutput($data,$hasType);
+            $outString    = sprintf($outString,$result);
+        }
+
+        unset($hasType,$data,$result);
+
+        return $outString;
+    }
+
+    /**
+     * 格式化打印，不含数据类型
+     * @param $data
+     * @param bool $mark
+     * @param string $outString
+     * @return string
+     */
+    static private function _handleNormalOutput($data, $mark=true, $outString='')
+    {
+        $html         = 'htmlspecialchars';
+        $ucfirst      = 'ucfirst';
+        $jsClass      = self::$controlClass;//' class="js-print-showOrHide"';
+        $usualString  = "<dt><div class=\"array-value\">\n%s</div></dt>\n";
+        $outString   .= '<dl>'.PHP_EOL;
+        $dataType     = gettype($data);
+
+        if ( is_array($data) )
+        {
+            $count = 'count';
+            $mark && $outString .= "<dt>".PHP_EOL."<div class=\"{$jsClass}\" style=\"width:98%\">
+            <strong class=\"general-print-color-dg\">{$ucfirst($dataType)}</strong>(size:<strong>{$count($data)}</strong>)<strong>(</strong></div><span class=\"print-icon icon-hide\"></span>".PHP_EOL."</dt>".PHP_EOL;
+            $outString .= '<!-- .general-print-ar-content -->'.PHP_EOL.'<dd class="general-print-ar-content">';
+
+            foreach($data as $k => $v)
+            {
+                $k          = is_int($k) ? $k : "'{$html($k,ENT_QUOTES)}'";
+                $vType      = gettype($v);
+                $outString .= PHP_EOL."<dl>\n<dt><div class=\"array-key\">$k</div>";
+
+                if ( is_array($v) || is_object($v) || is_resource($v))
+                {
+                    $outString .= "<div class=\"array-value {$jsClass}\"> &rArr; <strong class=\"general-print-color-dg\">{$ucfirst($vType)}</strong>(size:";
+
+                    if (empty($v)) {
+                        $outString .= "0)<strong>()</strong> </div><span class=\"print-icon icon-hide\"></span></dt>";
+                        continue;
+                    }
+
+                    $outString .= "<strong>{$count((array)$v)}</strong>)<strong>(</strong></div><span class=\"print-icon icon-hide\"></span>\n</dt>".PHP_EOL;
+                    $outString .= ltrim(self::_handleNormalOutput($v,false),'<dl>');
+                }
+                else {
+
+                    if ($v === false) $v = 'bool(false)';
+                    if ($v === true ) $v = 'bool(true)';
+                    if ($v === null ) $v = 'null(null)';
+                    if ($v === ''   ) $v = '""';
+
+                    $outString .= "<div class=\"array-value\"> &rArr; <span class=\"general-print-color-r\">{$v}</span> </div></dt>\n</dl>";
+                }
+
+            }//--endforeach--
+
+            $outString .= PHP_EOL.'</dd><!-- /.general-print-ar-content -->'.PHP_EOL.'</dl>'.PHP_EOL.'<dl><dt><strong>)</strong></dt>';
+        }
+        else if ( is_object($data) )
+        {
+            ob_start();
+            var_dump($data);
+            $string     = ob_get_clean();//'<pre class="general-print-font" style="padding-left:15px;">'
+            $outString .= $string;
+        }
+        else if (is_resource($data))
+        {
+            if ( ( $type = get_resource_type( $data ) ) === 'stream' and $meta = stream_get_meta_data( $data ) ) {
+
+                if ( isset( $meta['uri'] ) ) {
+                    $file = $meta['uri'];
+                    $resourceString = "resource ({$type}) {$html( $file, ENT_QUOTES )}";
+                } else {
+                    $resourceString = "resource ({$type})";
+                }
+
+            } else {
+                $resourceString = "resource ({$type})";
+            }
+
+            $outString .= sprintf($usualString,$resourceString);
+        } else {
+
+            if ($data === false) $data = 'bool(false)';
+            if ($data === null ) $data = 'null(null)';
+            if ($data === true)  $data = 'bool(true)';
+            if ($data === ''   ) $data = '""';
+
+            $outString .= '<span class=\"general-print-color-r\">'.sprintf($usualString,$data).'</span>';
+        }
+
+        return $outString.'</dl>'.PHP_EOL;
+    }
+
+    /**
+     * 格式化打印，含数据类型
+     * @param $data
+     * @param bool $hasType
+     * @param bool $mark
+     * @param string $outString
+     * @internal param $type ] $o description]
+     * @return string
+     */
+    static private function _handleTypeOutput($data,$hasType=true,$mark=true,$outString='')
+    {
+        # 常规打印，不含有类型
+        if (!$hasType)
+        {
+            return self::_handleNormalOutput($data);
+        }
+
+        $jsClass      = self::$controlClass;
+        $html         = 'htmlspecialchars';
+        $ucfirst      = 'ucfirst';
+        $usualString  = "<dt><div class=\"array-value\">\n%s</div></dt>\n";
+        $outString   .= '<dl>'.PHP_EOL;
+
+        $dataType     = gettype($data);
+
+        // if (is_object($data)) $data = (array)$data;
+        # 含类型打印
+        if ( is_array($data) )
+        {
+            $count = 'count';
+            $mark && $outString .= "<dt>\n<span class=\"print-icon icon-hide\"></span><div class=\"{$jsClass}\" style=\"width:98%\">".
+          "<strong class=\"general-print-color-dg\">{$ucfirst($dataType)}</strong>(size:<strong>{$count($data)}</strong>)<strong>(</strong></div>\n</dt>\n";
+            $outString .= '<!-- .general-print-ar-content -->'.PHP_EOL.'<dd class="general-print-ar-content">';
+
+            foreach($data as $k => $v)
+            {
+                $vType      = gettype($v);
+                $k          = is_int($k) ? $k : "'{$html($k,ENT_QUOTES)}'";
+                $outString .= PHP_EOL."<dl>\n<dt><div class=\"array-key\">$k</div>";
+
+                if ( is_array($v) || is_object($v) || is_resource($data) )
+                {//
+                    $outString .= "<div class=\"array-value {$jsClass}\"> &rArr; <strong class=\"general-print-color-dg\">{$ucfirst($vType)}</strong>(size:";
+
+                    if (empty($v)) {
+                        $outString .= "0)<strong>()</strong> </div><span class=\"print-icon icon-hide\"></span></dt>";
+                        continue;
+                    }
+
+                    $outString .= "<strong>{$count((array)$v)}</strong>)<strong>(</strong></div>\n<span class=\"print-icon icon-hide\"></span></dt>\n";
+                    $outString .= ltrim(self::_handleTypeOutput($v,true,false),'<dl>');
+                }
+                else {
+                    $length_html = '';
+
+                    if ( $v === null )   {
+                        $v = '(null)' ;
+                    } else if ($v === false) {
+                        $v = '(false)';
+                    } else if ($v === true ) {
+                        $v = '(true)' ;
+                    } else {
+                        $length       = DumpHelper::strLength($v);
+                        $length_html  = "(<span class=\"general-print-color-g\">length:</span>{$length})";
+                        $vType == 'string' && $v = "\"{$html($v,ENT_QUOTES)}\"";
+                    }
+
+                    $outString .= "<div class=\"array-value\"> &rArr; {$vType} <span class=\"general-print-color-r\">{$v}</span> {$length_html} </div></dt>".PHP_EOL."</dl>";
+                }
+            }//--endforeach--
+
+            $outString .= PHP_EOL.'</dd><!-- /.general-print-ar-content -->'.PHP_EOL.'</dl>'.PHP_EOL.'<dl><dt><strong>)</strong></dt>';
+        }
+        else if ( is_object($data) )
+        {
+            ob_start();
+            var_dump($data);
+            $string     = ob_get_clean();//'<pre class="general-print-font" style="padding-left:15px;">'
+            $outString .= $string;
+        }
+        else if (is_resource($data))
+        {
+            if ( ( $dataType = get_resource_type( $data ) ) === 'stream' and $meta = stream_get_meta_data( $data ) ) {
+
+                if ( isset( $meta['uri'] ) ) {
+                    $file = $meta['uri'];
+                    $resourceString = "Resource ({$dataType}) {$html( $file, ENT_QUOTES)}";
+                } else {
+                    $resourceString = "Resource ({$dataType})";
+                }
+
+            } else {
+                $resourceString = "Resource ({$dataType})";
+            }
+
+            $outString .= sprintf($usualString,$resourceString);
+        }
+        else {
+            $length = null;
+
+            if ($data === false) $data = 'false';
+            else if ($data === true)  $data = 'true';
+            else if ($data === null)  $data = 'null';
+            else $length = DumpHelper::strLength($data);// float integer string
+
+            $dataType == 'string' && $data = "\"{$html($data,ENT_QUOTES)}\"";
+
+            if ($length === null)
+                $lengthString = '';
+            else
+                $lengthString = "(<span class=\"general-print-color-g\">length:</span>{$length})";
+
+            $outString .= sprintf($usualString,"{$dataType} <span class=\"general-print-color-r\">{$data}</span> {$lengthString}");
+        }
+
+        return $outString.'</dl>'.PHP_EOL;
+    }
+
+    static public function getSystemPrintData($data,$hasType=true)
+    {
+        $fun = $hasType ? 'var_dump' : 'print_r';
+
+        ob_start();
+        $fun($data);
+        $string     = ob_get_clean();
+
+        if (!$hasType) {
+            $string = '<pre>'.$string.PHP_EOL.'</pre>';
+        }
+
+        return $string;
+    }
+
+################### 辅助函数
+    # 如果 self::detectAjax == true, 为侦测 Ajax 请求做准备
+
+    // 得到函数的调用位置，以免调用太多，找不到调用打印的地方
+    public function calledPosition($backNum=6,$separator='#5')
+    {
+        if (!headers_sent())
+            header('Content-Type: text/html; charset=UTF-8');
+
+        if (self::$disabled) {
+            return '';
+        }
+
+        ob_start();
+        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,$backNum);
+        } else {
+            debug_print_backtrace(false);
+        }
+
+        $positionInfo = ob_get_clean();
+        $positionInfo = strstr($positionInfo, $separator);
+        $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
+        $positionInfo = str_replace('\\', '/', $positionInfo);
+        $root         = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']);
+
+        # ajax
+        if (DumpHelper::isAjax() || DumpHelper::isCliMode() ) {
+            $positionInfo       = str_replace($root, '<-ROOT->', $positionInfo);
+            $this->positionData = PHP_EOL.'>>>>>> The print method '.$positionInfo.PHP_EOL;
+
+            return $this;
+        }
+
+        $positionInfo = str_replace($root, '&lt;-ROOT-&gt;', $positionInfo);
+        $positionData = '';
+
+        # 加载样式和jQuery。 TODO: 同一个页面只加载一次样式和jQuery
+        if (!self::$hasStyle)
+        {
+            $positionData      .= self::_styleTag().PHP_EOL.self::_scriptTag();
+            self::$hasStyle     =true;
+        }
+
+        #
+        $tips          = !static::$hidden ? '' : '本次打印数据已隐藏,请点击右侧开关按钮显示数据。';
+        $positionData .= <<<EOF
+<div class="general-print-pos general-print-font">
+  <p class="js-general-pos-info general-pos-info" style="display:inline-block;">本次打印调用位置：$positionInfo <span class="general-print-tips">$tips</span></p>
+  <span class="general-print-help">?</span>
+  <span class="general-print-code">&equiv;</span>
+  <span class="general-print-switch js-general-print-switch">&otimes;</span>
+</div>
+EOF;
+        $this->positionData = $positionData;
+
+        return $this;
+    }
+
+
+    static private function _styleTag()
+    {
+        $css = file_get_contents(__DIR__.'/static/po.css');
+        $css = preg_replace('/\s\s+/',' ',$css);
+        $styleTag = "<!-- PRINT_OUTPUT_STYLE -->\n<style type='text/css'>%s</style>\n<!-- PRINT_OUTPUT_STYLE -->";
+
+        return sprintf($styleTag,$css);
+    }
+
+    static private function _scriptTag()
+    {
+        $find    = array(
+            '__reallyDetectAjax__', '__controlClass__'
+        );
+        $replace = array(
+            'false', static::$controlClass
+        );
+
+        $jsCode = file_get_contents(__DIR__.'/static/po.js');
+
+        if (self::$detectAjax == true) {
+            $replace = array(
+                'true', static::$controlClass
+            );
+        }
+
+        $jsCode = str_replace($find, $replace, trim($jsCode));
+
+        $jsTag = "%s<script type=\"text/javascript\">\n %s \n</script>\n<!--PRINT_OUTPUT_SCRIPT-->\n";
+
+        return sprintf($jsTag, self::jqueryCdn() ,$jsCode);
+    }
+
+    static public function jqueryCdn()
+    {
+        return <<<EOF
+<!--PRINT_OUTPUT_SCRIPT-->
+<script type="text/javascript">
+  !window.jQuery && document.write('<script src="http://libs.useso.com/js/jquery/2.1.0/jquery.min.js"><\/script>');
+ </script>
+EOF;
+
+    }
+
+    static public function quit($msg='', $exit=true)
+    {
+        if ($exit) {
+            exit($msg);
+        } else {
+            echo $msg;
+        }
+    }
+
+}// class end
+
+
+
