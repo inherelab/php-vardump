@@ -16,12 +16,19 @@ a simple php print tool, 简单的php数据打印工具
 
 ## 加载
 
-    // 加载functions.php 既可以函数方式调用也可以 类方法调用
-    // 如：  d()  de()  p()  pe()  Po::d() Po::de() Po::p() Po::pe() ....
-    include_once './../functions.php';
+```php
+// 加载functions.php 既可以函数方式调用也可以 类方法调用
+// 如：  d()  de()  p()  pe()  Po::d() Po::de() Po::p() Po::pe() ....
+include_once './../functions.php';
 
+<<<<<<< HEAD
     //也可只加载 Po.php 这时候仅可以用 类方法调用 如： Po::d() Po::de() Po::p() Po::pe() ...
     // include_once './../Po.php';
+
+=======
+//也可只加载 Po.php 这时候仅可以用 类方法调用 如： Po::d() Po::de() Po::p() Po::pe() ...
+// include_once './../Po.php';
+```
 
 ##效果
 <a href="https://raw.githubusercontent.com/inhere/simple-print-tool/master/test/test1.jpg" target="_blank">
