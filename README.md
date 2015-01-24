@@ -21,12 +21,17 @@ a simple php print tool, 简单的php数据打印工具
 // 如：  d()  de()  p()  pe()  Po::d() Po::de() Po::p() Po::pe() ....
 include_once './../functions.php';
 
+<<<<<<< HEAD
 //也可只加载 Po.php 这时候仅可以用 类方法调用 如： Po::d() Po::de() Po::p() Po::pe() ...
 include_once './../Po.php';
 
 // simplePrinter.php 则更简单，仅这一个文件，只提供 pr() vd() 两种打印方法。不可与functions.php 同时加载！
 include_once './../simplePrinter.php';
 ```
+=======
+    //也可只加载 Po.php 这时候仅可以用 类方法调用 如： Po::d() Po::de() Po::p() Po::pe() ...
+    // include_once './../Po.php';
+
 ##效果
 <a href="https://raw.githubusercontent.com/inhere/simple-print-tool/master/test/test1.jpg" target="_blank">
 截图
