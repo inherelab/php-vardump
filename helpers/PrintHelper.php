@@ -7,8 +7,48 @@
  * Be used to:
  */
 
-class DumpHelper
+class PrintHelper
 {
+    /**
+     * 清除标签并格式化数据
+     * @param string $data
+     * @return mixed|string
+     */
+    static public function clearTagAndFormat($data)
+    {
+        if (!$data || !is_string($data)) {
+            return $data;
+        }
+
+        $data = strip_tags($data);
+        $data = str_replace(
+            array('&rArr;', '&gt;'),
+            array('=>', '>'),
+            $data
+        );
+        $data = preg_replace(
+            array( "/[\n\r]+/i", "/Array[\s]*\(/","/=>[\s]+/i" ),
+            array( "\n", 'Array (',"=> " ),
+            $data
+        );
+
+        return $data;
+    }
+
+    static public function simpleFormat($data)
+    {
+        if (!$data || !is_string($data)) {
+            return $data;
+        }
+
+        $data = preg_replace(
+            array( "/[\n\r]+/i", "/Array[\s]*\(/","/=>[\s]+/i" ),
+            array( "\n", 'Array (',"=> " ),
+            $data
+        );
+
+        return $data;
+    }
 
     static public function versionCheck()
     {
@@ -97,8 +137,8 @@ class DumpHelper
     // 命令模式
     static public function isCliMode()
     {
-      // return PHP_SAPI === 'cli' ? true : FALSE;
-      return php_sapi_name() === 'cli' ? true : FALSE;
+      // return PHP_SAPI === 'cli' ? true : false;
+      return php_sapi_name() === 'cli' ? true : false;
     }
 
     // ajax 请求

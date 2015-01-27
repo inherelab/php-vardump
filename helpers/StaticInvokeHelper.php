@@ -9,7 +9,7 @@
  * StaticInvokHelper.php
  */
 
-abstract class StaticInvokHelper
+abstract class StaticInvokeHelper
 {
     static private $instanceContainer  = array();
 
@@ -84,6 +84,8 @@ abstract class StaticInvokHelper
         else {
             \Trigger::error('error call! Class method [ '.get_class($this)."::$oldMethod() ] does not exist or not allow access!!");
         }
+
+        return false;
     }
 
     private function _isAllowCall($method)
