@@ -1,24 +1,26 @@
 <?php
-    if (!headers_sent())
-        header('content-Type:text/html;charset=utf-8');
+if (!headers_sent())
+    header('content-Type:text/html;charset=utf-8');
 
-    static $__print_style_out_mark = FALSE;
+static $__print_style_out_mark = FALSE;
 
-/**
- * [vd === print_r 但支持传入多个参数]
- * @internal param string $value [description]
- * @return void [type]        [description]
- */
+if (function_exists('pr'))
+{
+    /**
+     * [vd === print_r 但支持传入多个参数]
+     * @internal param string $value [description]
+     * @return void [type]        [description]
+     */
     function pr()
     {
         $param     = func_get_args();
         $outString = '';
         $last      = array_pop($param);
 
-        getFunctionCalledPosition();
+        ___getFunctionCalledPosition();
 
         foreach ($param as $key => $value) {
-          $outString .= dump($value,false,true);
+          $outString .= dump($value,false);
         }
 
         $exit=false;
@@ -26,25 +28,28 @@
         if ($last === '_5')
             $exit=true;
         else
-            $outString .=dump($last,false,true);
+            $outString .=dump($last,false);
 
-        output($outString,$exit);
+        ___output($outString,$exit);
     }
+}
 
-/**
- * 多个打印 === var_dump
- * @return void [type] [description]
- */
+if (function_exists('vd'))
+{
+    /**
+     * 多个打印 === var_dump
+     * @return void [type] [description]
+     */
     function vd()
     {
         $param     = func_get_args();
         $last      = array_pop($param);
         $outString = '';
 
-        getFunctionCalledPosition();
+        ___getFunctionCalledPosition();
 
         foreach ($param as $value) {
-            $outString .= dump($value,true,true);
+            $outString .= dump($value,true);
         }
 
         $exit=false;
@@ -52,12 +57,13 @@
         if ($last === '_5')
           $exit=true;
         else
-          $outString .=dump($last,true,true);
+          $outString .=dump($last,true);
 
-        output($outString,$exit);
+        ___output($outString,$exit);
     }
+}
 
-    function output($string, $exit=false)
+    function ___output($string, $exit=false)
     {
         if ($exit) {
             exit($string);
@@ -69,9 +75,7 @@
     function dump($data,$hasType=true,$useSystemPrint=true)
     {
         # 使用系统函数打印
-        // if ( $useSystemPrint ) {
-            $outString       = getSystemPrintData($data,$hasType);
-        // }
+        $outString       = ___getSystemPrintData($data,$hasType);
         $outString  = trim($outString);
 
         unset($hasType,$data);
@@ -89,11 +93,11 @@
         return $output;
     }
 
-/**
- * @param String $var 要查找的变量
- * @param Array $scope 要搜寻的范围
- * @return mixed
- */
+    /**
+     * @param String $var 要查找的变量
+     * @param Array $scope 要搜寻的范围
+     * @return mixed
+     */
     function get_variable_name(&$var, $scope=null){
 
         $scope  = $scope==null? $GLOBALS : $scope; // 如果没有范围则在globals中找寻
@@ -109,7 +113,7 @@
         return $name;
     }
 
-    function getSystemPrintData($data,$hasType=true)
+    function ___getSystemPrintData($data,$hasType=true)
     {
         $fun = $hasType ? 'var_dump' : 'print_r';
 
@@ -121,7 +125,7 @@
         return $string;
     }
 
-    function getFunctionCalledPosition($backNum=2,$separator='#1',$return = false)
+    function ___getFunctionCalledPosition($backNum=2,$separator='#1',$return = false)
     {
         global $__print_style_out_mark;
 
@@ -131,17 +135,15 @@
         } else {
             debug_print_backtrace(false);
         }
-        $positionInfo = ob_get_clean();
 
-        // $info = strstr($info, "\n");
-        // $info = trim(str_replace(array("\n","#1"), '', $info));
+        $positionInfo = ob_get_clean();
         $positionInfo = strstr($positionInfo, $separator);
-        
+
         if ( !$phpGt54 ) {
             $positionInfo = strstr($positionInfo, ' called at ');
             $positionInfo = strstr($positionInfo, '#2 ',true);
         }
-        
+
         $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
         $positionInfo = str_replace('\\', '/', $positionInfo);
         $root         = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']);
@@ -154,13 +156,13 @@
         if (!$__print_style_out_mark) {
             $__print_style_out_mark = true;
 
-            echo _cssOut();//,loadJQuery()
+            echo ___cssOut();//,loadJQuery()
         }
 
-        echo "<div class=\"general-print-pos general-print-font\">本次打印调用位置：$positionInfo</div>";
+        echo "<div class=\"general-print-pos general-print-font\">本次打印调用位置：$positionInfo</div>\n";
     }
 
-    function _cssOut($value='')
+    function ___cssOut($value='')
     {
           return <<<EOF
           <style>
@@ -176,4 +178,5 @@
     .general-print-box pre {margin: 0 !important; padding: 10px 12px; font-family: inherit; }
     </style>
 EOF;
+
     }

@@ -424,8 +424,8 @@ class Po extends StaticInvokeHelper
         $outString   .= '<dl>'.PHP_EOL;
         $dataType     = gettype($data);
 
-        if ( is_array($data) )
-        {
+        if ( is_array($data) ) {
+
             $count = 'count';
             $mark && $outString .= "<dt>".PHP_EOL."<div class=\"{$jsClass}\" style=\"width:98%\">
             <strong class=\"general-print-color-dg\">{$ucfirst($dataType)}</strong>(size:<strong>{$count($data)}</strong>)<strong>(</strong></div><span class=\"print-icon icon-hide\"></span>".PHP_EOL."</dt>".PHP_EOL;
@@ -462,13 +462,9 @@ class Po extends StaticInvokeHelper
             }//--endforeach--
 
             $outString .= PHP_EOL.'</dd><!-- /.general-print-ar-content -->'.PHP_EOL.'</dl>'.PHP_EOL.'<dl><dt><strong>)</strong></dt>';
-        }
-        else if ( is_object($data) )
-        {
+        } else if ( is_object($data) ) {
             $outString .= self::getSystemPrintData($data,0);
-        }
-        else if (is_resource($data))
-        {
+        } else if (is_resource($data)) {
             if ( ( $type = get_resource_type( $data ) ) === 'stream' and $meta = stream_get_meta_data( $data ) ) {
 
                 if ( isset( $meta['uri'] ) ) {
@@ -650,12 +646,12 @@ class Po extends StaticInvokeHelper
 
         $positionInfo = ob_get_clean();
         $positionInfo = strstr($positionInfo, $separator);
-                
+
         if ( !$phpGt54 ) {
             $positionInfo = strstr($positionInfo, ' called at ');
             $positionInfo = strstr($positionInfo, '#2 ',true);
         }
-        
+
         $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
         $positionInfo = str_replace('\\', '/', $positionInfo);
         $root         = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']);
@@ -761,3 +757,4 @@ EOF;
     }
 
 }// class end
+
