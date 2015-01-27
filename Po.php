@@ -12,33 +12,32 @@
  * +--------------------------------------------------------------------------------------+
  * |     -----        | 是否可打印   | 打印时是否  | 打印后是否   |      补充说明            |
  * |  (方法)函数使用   |  多个参数    |  类型输出   | 会退出程序   |                         |
+ * |------------------+-------------+------------+-------------+-------------------------|
+ * | d() / Po::d()    |       √     |     √      |      X      |                         |
+ * |------------------|-------- ----|------------|-------------|                         |
+ * | de() / Po::de()  |       √     |     √      |      √      |                         |
+ * |------------------|-------- ----|------------|-------------|                         |
+ * | p() / Po::p()    |       √     |     X      |      X      |                         |
+ * |------------------|-------- ----|------------|-------------|                         |
+ * | pe() / Po::pe()  |       √     |     X      |      √      |                         |
  * |------------------+-------- ----+------------+-------------+-------------------------|
- * | d() | Po::d()    |       √     |     √      |      X      |                         |
- * |------------------|-------- ----|------------|-------------|                         |
- * | de() | Po::de()  |       √     |     √      |      √      |                         |
- * |------------------|-------- ----|------------|-------------|                         |
- * | p() | Po::p()    |       √     |     X      |      X      |                         |
- * |------------------|-------- ----|------------|-------------|                         |
- * | pe() | Po::pe()  |       √     |     X      |      √      |                         |
- * |------------------+-------- ----+------------+-------------+-------------------------|
- * | pr() | Po::pr()  |       √     |     X      |      X      |  pr()等同于print_r(),    |
+ * | pr() / Po::pr()  |       √     |     X      |      X      |  pr()等同于print_r(),    |
  * |------------------|-------- ----|------------|-------------|  但可以传入多个参数       |
- * | vd() | Po::vd()  |       √     |     √      |      X      |  vd()等同于var_dump()    |
+ * | vd() / Po::vd()  |       √     |     √      |      X      |  vd()等同于var_dump()    |
  * +--------------------------------------------------------------------------------------+
  * 若使用了命名空间 类方法调用 需在最前加上'\'。 @example \Po::d($arg1,$arg2,$arg3,...);
  **/
 
-include_once __DIR__.'/helpers/DumpHelper.php';
-include_once __DIR__.'/helpers/StaticInvokHelper.php';
+include_once __DIR__.'/helpers/PrintHelper.php';
+include_once __DIR__.'/helpers/StaticInvokeHelper.php';
 
-class Po extends StaticInvokHelper
+class Po extends StaticInvokeHelper
 {
     static private $instance      = null;
 
     # 数组内容显示隐藏 控制 class name
     static public $controlClass   = 'js-control-showOrHide';
     static private $hasStyle      = false; # 标记样式是否已经输出
-    static private $ajaxPrepare   = false; # 标记样式是否已经输出
 
     /**
      * $disabled 禁用输出，设置后将不会打印数据。
@@ -49,23 +48,32 @@ class Po extends StaticInvokHelper
 
     /**
      * $hidden 是否展开打印数据，默认展开
-     * use: 在打印前调用 Po::hidden() 可默认收缩隐藏打印数据
+     * use: 在打印前调用 @see Po::hidden() 可默认收缩隐藏打印数据
      */
     static private $hidden        = false;
 
     /**
      * $detectAjax 开启侦测Ajax请求 @todo 未完善
-     * use: 在打印前调用 Po::detectAjax()
+     * use: 在打印前调用@see Po::detectAjax()
      * @var boolean
      */
     static private $detectAjax    = false;
 
+    /**
+     * @see Po::stripTags()
+     * 是否去除html标签。当 ajax请求 或是 cli(命令环境) 时，无需设置也会自动去除
+     * @var bool
+     */
+    static private $stripTags     = false;
+
     public $exit                  = false; // 是否退出
+    public $exitKey               = -4; // 退出关键字
+    public $skipKey               = -5; // 不退出，跳出关键字
     public $positionData; // 打印位置信息数据
     public $inputData;
     public $outputData;
-    public $numberArg; // 参数个数
-    public $lastArg;   // 传入的最后一个参数
+//    public $numberArg; // 参数个数
+//    public $lastArg;   // 传入的最后一个参数
 
     public function __construct()
     {
@@ -99,36 +107,82 @@ class Po extends StaticInvokHelper
      */
     public function invoking($methodName,array $data)
     {
+        if ( !method_exists($this, $methodName) ) {
+            self::quit('The Class <b>'.get_class($this)."</b> don't has method $methodName() !");
+        }
 
         $positionData = $this->calledPosition()->positionData;
 
-        if (!DumpHelper::isAjax()) {
-            echo $positionData;
+//        if (!PrintHelper::isAjax()) {
+//            echo $positionData;
+//        }
+
+        $this->$methodName($data);
+
+        $outputData = $this->outputData;
+
+        if ( PrintHelper::isAjax()) {
+            $output     = array(
+                'position' => str_replace(PHP_EOL, '', $positionData),
+                'content'  => PrintHelper::clearTagAndFormat($outputData)
+            );
+
+            $outputData = json_encode($output).',';
+        }
+        else if ( PrintHelper::isCliMode() ) {
+            $outputData = PrintHelper::clearTagAndFormat( $positionData.$outputData );
         }
 
-        if ( method_exists($this, $methodName) )
-        {
-            $this->$methodName($data);
-            $outputData = $this->outputData;
-
-            if ( DumpHelper::isAjax()) {
-                $output     = array(
-                    'position' => str_replace(PHP_EOL, '', $positionData),
-                    'content'  => strip_tags($outputData)
-                );
-                $outputData = json_encode($output).',';
-            }
-            else if (DumpHelper::isCliMode()) {
-                $outputData = strip_tags( str_replace('&rArr;', '=>', $outputData) );
-            }
-
-            self::quit($outputData,$this->exit);
+        if ( self::$stripTags ) {
+            $outputData = PrintHelper::clearTagAndFormat( $positionData.$outputData );
         } else {
-            self::quit('The Class <b>'.__CLASS__."</b> don't has method $methodName() !");
+            $outputData = $positionData.$outputData;
         }
-        // if (DumpHelper::isAjax() || DumpHelper::isCliMode() ) {
+
+        self::quit($outputData,$this->exit);
+
+        // if (PrintHelper::isAjax() || PrintHelper::isCliMode() ) {
         //   echo PHP_EOL.'<<<<<< '.$methodName.'() print out end ......',PHP_EOL;
         // }
+    }
+
+################### 打印输出设置
+
+    /**
+     * 隐藏输出内容，只剩下工具条
+     * @param bool $value
+     */
+    static public function hidden($value=true)
+    {
+        self::$hidden = (bool)$value;
+    }
+
+    /**
+     * 禁用输出
+     * @param bool $value
+     */
+    static public function disabled($value=true)
+    {
+        self::$disabled = (bool)$value;
+    }
+
+    /**
+     * 去除html标记
+     * @param bool $value
+     */
+    static public function stripTags($value=true)
+    {
+        self::$stripTags = (bool)$value;
+    }
+
+    // 开启侦测Ajax请求 @todo 未完善
+    static public function detectAjax($value=true)
+    {
+        if ($value==='end' && PrintHelper::isAjax() ) {
+            self::quit();
+        } else {
+            self::$detectAjax = (bool)$value;
+        }
     }
 
 ################### 调用系统函数打印输出
@@ -144,11 +198,11 @@ class Po extends StaticInvokHelper
     {
         $last = array_pop($param);
 
-        foreach ($param as $key => $value) {
+        foreach ($param as $value) {
             $outString .= $this->dump($value,true,true);
         }
 
-        if ($last === '_4') {
+        if ($last === $this->exitKey) {
             $this->exit = true;
         }
         else {
@@ -169,10 +223,10 @@ class Po extends StaticInvokHelper
     {
         $last = array_pop($param);
 
-        foreach ($param as $key => $value) {
+        foreach ($param as $value) {
             $outString .= $this->dump($value,false,true);
         }
-        if ($last === '_4') {
+        if ($last === $this->exitKey) {
             $this->exit = true;
         }
         else {
@@ -194,11 +248,11 @@ class Po extends StaticInvokHelper
     {
         $last = array_pop($param);
 
-        foreach ($param as $key => $value) {
+        foreach ($param as $value) {
             $outString .= $this->dump($value,false);
         }
 
-        if ($last === '_4') {
+        if ($last === $this->exitKey) {
             $this->exit   = true;
         }
         else {
@@ -218,13 +272,13 @@ class Po extends StaticInvokHelper
     {
         $last = array_pop($param);
 
-        foreach ($param as $key => $value) {
+        foreach ($param as $value) {
             $outString .= $this->dump($value,false);
         }
 
         $this->exit       = true;
 
-        if ($last === '_5') {
+        if ($last === $this->skipKey) {
             $this->exit  = false;
         }
         else {
@@ -239,16 +293,18 @@ class Po extends StaticInvokHelper
     /**
      * 打印一个或者多个参数： 可以传入多个参数；最后一个若为 _4 则退出程序
      * d($arg1,$arg2,$arg3,...)
+     * @param $param
+     * @param string $outString
      */
     protected function d($param,$outString= '')
     {
         $last = array_pop($param);
 
-        foreach ($param as $key => $value) {
+        foreach ($param as $value) {
             $outString .= $this->dump($value);
         }
 
-        if ($last === '_4') {
+        if ($last === $this->exitKey) {
             $this->exit   = true;
         }
         else {
@@ -274,7 +330,7 @@ class Po extends StaticInvokHelper
 
         $this->exit       = true;
 
-        if ($last === '_5') {
+        if ($last === $this->skipKey) {
             $this->exit   = false;
         }
         else {
@@ -300,29 +356,24 @@ class Po extends StaticInvokHelper
         }
     }
 
-################### 打印输出设置
-
-    static public function hidden($value=true)
+    private function _handle($param, $hasType=true, $useSystemPrint=false, $outString= '')
     {
-        self::$hidden = (bool)$value;
-    }
+        $last = array_pop($param);
 
-    static public function disabled($value=true)
-    {
-        self::$disabled = (bool)$value;
-    }
-
-    // 开启侦测Ajax请求 @todo 未完善
-    static public function detectAjax($value=true)
-    {
-        if ($value==='end' && DumpHelper::isAjax() ) {
-            self::quit();
-        } else {
-            self::$detectAjax = (bool)$value;
+        foreach ($param as $value) {
+            $outString .= $this->dump($value, $hasType, $useSystemPrint);
         }
-    }
 
-    ################### 打印输出数据解析
+        if ($last === '_4') {
+            $this->exit   = true;
+        }
+        else {
+            $outString .= $this->dump($last, $hasType, $useSystemPrint);
+        }
+
+        $this->outputData = $outString;
+    }
+################### 打印输出数据解析
 
     /**
      * 格式化打印数组，含类型 长度 ==var_dump
@@ -384,7 +435,7 @@ class Po extends StaticInvokHelper
             {
                 $k          = is_int($k) ? $k : "'{$html($k,ENT_QUOTES)}'";
                 $vType      = gettype($v);
-                $outString .= PHP_EOL."<dl>\n<dt><div class=\"array-key\">$k</div>";
+                $outString .= PHP_EOL."<dl>\n<dt><div class=\"array-key\">\t$k</div>";
 
                 if ( is_array($v) || is_object($v) || is_resource($v))
                 {
@@ -414,10 +465,7 @@ class Po extends StaticInvokHelper
         }
         else if ( is_object($data) )
         {
-            ob_start();
-            var_dump($data);
-            $string     = ob_get_clean();//'<pre class="general-print-font" style="padding-left:15px;">'
-            $outString .= $string;
+            $outString .= self::getSystemPrintData($data,0);
         }
         else if (is_resource($data))
         {
@@ -453,6 +501,7 @@ class Po extends StaticInvokHelper
      * @param $data
      * @param bool $hasType
      * @param bool $mark
+     * @internal string $tab 每递归一次，添加一次Tab缩进
      * @param string $outString
      * @internal param $type ] $o description]
      * @return string
@@ -468,9 +517,9 @@ class Po extends StaticInvokHelper
         $jsClass      = self::$controlClass;
         $html         = 'htmlspecialchars';
         $ucfirst      = 'ucfirst';
+        static $i      = 1;
         $usualString  = "<dt><div class=\"array-value\">\n%s</div></dt>\n";
         $outString   .= '<dl>'.PHP_EOL;
-
         $dataType     = gettype($data);
 
         // if (is_object($data)) $data = (array)$data;
@@ -479,14 +528,15 @@ class Po extends StaticInvokHelper
         {
             $count = 'count';
             $mark && $outString .= "<dt>\n<span class=\"print-icon icon-hide\"></span><div class=\"{$jsClass}\" style=\"width:98%\">".
-          "<strong class=\"general-print-color-dg\">{$ucfirst($dataType)}</strong>(size:<strong>{$count($data)}</strong>)<strong>(</strong></div>\n</dt>\n";
+            "<strong class=\"general-print-color-dg\">{$ucfirst($dataType)}</strong>(size:<strong>{$count($data)}</strong>)<strong>(</strong></div>\n</dt>\n";
             $outString .= '<!-- .general-print-ar-content -->'.PHP_EOL.'<dd class="general-print-ar-content">';
+            $tab    = self::_getTab($i);
 
             foreach($data as $k => $v)
             {
                 $vType      = gettype($v);
                 $k          = is_int($k) ? $k : "'{$html($k,ENT_QUOTES)}'";
-                $outString .= PHP_EOL."<dl>\n<dt><div class=\"array-key\">$k</div>";
+                $outString .= "\n<dl>\n<dt><div class=\"array-key\">$tab$k</div>";
 
                 if ( is_array($v) || is_object($v) || is_resource($data) )
                 {//
@@ -496,6 +546,7 @@ class Po extends StaticInvokHelper
                         $outString .= "0)<strong>()</strong> </div><span class=\"print-icon icon-hide\"></span></dt>";
                         continue;
                     }
+                    $i++;
 
                     $outString .= "<strong>{$count((array)$v)}</strong>)<strong>(</strong></div>\n<span class=\"print-icon icon-hide\"></span></dt>\n";
                     $outString .= ltrim(self::_handleTypeOutput($v,true,false),'<dl>');
@@ -510,7 +561,7 @@ class Po extends StaticInvokHelper
                     } else if ($v === true ) {
                         $v = '(true)' ;
                     } else {
-                        $length       = DumpHelper::strLength($v);
+                        $length       = PrintHelper::strLength($v);
                         $length_html  = "(<span class=\"general-print-color-g\">length:</span>{$length})";
                         $vType == 'string' && $v = "\"{$html($v,ENT_QUOTES)}\"";
                     }
@@ -519,14 +570,12 @@ class Po extends StaticInvokHelper
                 }
             }//--endforeach--
 
-            $outString .= PHP_EOL.'</dd><!-- /.general-print-ar-content -->'.PHP_EOL.'</dl>'.PHP_EOL.'<dl><dt><strong>)</strong></dt>';
+            $endTab = substr($tab,0,-($i-1));
+            $outString .= "\n</dd><!-- /.general-print-ar-content -->\n</dl>\n<dl><dt><strong>$endTab)</strong></dt>";
         }
         else if ( is_object($data) )
         {
-            ob_start();
-            var_dump($data);
-            $string     = ob_get_clean();//'<pre class="general-print-font" style="padding-left:15px;">'
-            $outString .= $string;
+            $outString .= self::getSystemPrintData($data);
         }
         else if (is_resource($data))
         {
@@ -551,7 +600,7 @@ class Po extends StaticInvokHelper
             if ($data === false) $data = 'false';
             else if ($data === true)  $data = 'true';
             else if ($data === null)  $data = 'null';
-            else $length = DumpHelper::strLength($data);// float integer string
+            else $length = PrintHelper::strLength($data);// float integer string
 
             $dataType == 'string' && $data = "\"{$html($data,ENT_QUOTES)}\"";
 
@@ -574,16 +623,14 @@ class Po extends StaticInvokHelper
         $fun($data);
         $string     = ob_get_clean();
 
-        if (!$hasType) {
-            $string = '<pre>'.$string.PHP_EOL.'</pre>';
+        if ( preg_match('/^<pre[\s]*/i', $string)!=1 ) {
+            $string  = "<pre>$string</pre>";
         }
 
-        return $string;
+        return PrintHelper::simpleFormat($string);
     }
 
 ################### 辅助函数
-    # 如果 self::detectAjax == true, 为侦测 Ajax 请求做准备
-
     // 得到函数的调用位置，以免调用太多，找不到调用打印的地方
     public function calledPosition($backNum=6,$separator='#5')
     {
@@ -608,7 +655,7 @@ class Po extends StaticInvokHelper
         $root         = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']);
 
         # ajax
-        if (DumpHelper::isAjax() || DumpHelper::isCliMode() ) {
+        if (PrintHelper::isAjax() || PrintHelper::isCliMode() || self::$stripTags ) {
             $positionInfo       = str_replace($root, '<-ROOT->', $positionInfo);
             $this->positionData = PHP_EOL.'>>>>>> The print method '.$positionInfo.PHP_EOL;
 
@@ -640,6 +687,19 @@ EOF;
         return $this;
     }
 
+    static private function _getTab($n)
+    {
+        $tab = "\t";
+        if($n==1){
+            return $tab;
+        } else {
+            for($i=1;$i<$n;$i++) {
+                $tab .="\t";
+            }
+
+            return $tab;
+        }
+    }
 
     static private function _styleTag()
     {
