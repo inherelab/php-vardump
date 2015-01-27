@@ -82,7 +82,7 @@ abstract class StaticInvokeHelper
             return call_user_func_array(array($this,'invoking'), array( $method, $args[0]));
         }
         else {
-            \Trigger::error('error call! Class method [ '.get_class($this)."::$oldMethod() ] does not exist or not allow access!!");
+            trigger_error('error call! Class method [ '.get_class($this)."::$oldMethod() ] does not exist or not allow access!!",E_USER_ERROR);
         }
 
         return false;
@@ -135,7 +135,7 @@ abstract class StaticInvokeHelper
                 $methodPrefix = static::$methodPrefix;
 
                 if (empty($methodPrefix) || !is_string($methodPrefix)) {
-                    \Trigger::error('请设置方法前缀属性值：$methodPrefix ');
+                    trigger_error('请设置方法前缀属性值：$methodPrefix ',E_USER_ERROR);
                 }
 
                 $methodName = $methodPrefix.ucfirst($method);
@@ -146,7 +146,7 @@ abstract class StaticInvokeHelper
                 $methodSuffix = static::$methodSuffix;
 
                 if (empty($methodSuffix) || !is_string($methodSuffix)) {
-                    \Trigger::error('请设置方法后缀属性值：$methodSuffix ');
+                    trigger_error('请设置方法后缀属性值：$methodSuffix ',E_USER_ERROR);
                 }
 
                 $methodName = $method.ucfirst($methodSuffix);

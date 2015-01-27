@@ -1,62 +1,62 @@
 <?php
 
-    !class_exists('Po',false) && include_once __DIR__.'/Po.php';
+!class_exists('Po',false) && include_once __DIR__.'/Po.php';
 
-   /**
-    * 打印输出, 函数方式调用
-    */
-    if (!function_exists('p'))
+/**
+* 打印输出, 函数方式调用
+*/
+if (!function_exists('p'))
+{
+    function p()
     {
-        function p()
-        {
-          Po::owner()->p(func_get_args());
-        }
+      Po::owner()->p(func_get_args());
     }
+}
 
-    if (!function_exists('pe'))
+if (!function_exists('pe'))
+{
+    function pe()
     {
-        function pe()
-        {
-          Po::owner()->pe(func_get_args());
-        }
+      Po::owner()->pe(func_get_args());
     }
+}
 
-    if (!function_exists('d'))
+if (!function_exists('d'))
+{
+    function d()
     {
-        function d()
-        {
-          Po::owner()->d(func_get_args());
-        }
+      Po::owner()->d(func_get_args());
     }
+}
 
-    if (!function_exists('de'))
+if (!function_exists('de'))
+{
+    function de()
     {
-        function de()
-        {
-          Po::owner()->de(func_get_args());
-        }
+      Po::owner()->de(func_get_args());
     }
+}
 
-    if (!function_exists('pr'))
+if (!function_exists('pr'))
+{
+    function pr()
     {
-        function pr()
-        {
-          Po::owner()->pr(func_get_args());
-        }
+      Po::owner()->pr(func_get_args());
     }
+}
 
-    if (!function_exists('vd'))
+if (!function_exists('vd'))
+{
+    function vd()
     {
-        function vd()
-        {
-          Po::owner()->vd(func_get_args());
-        }
+      Po::owner()->vd(func_get_args());
     }
+}
 
-    //打印用户定义常量
-    if (!function_exists('puc'))
-    {
-        function puc() {
-            return Po::uc();
-        }
+//打印用户定义常量
+if (!function_exists('puc'))
+{
+    function puc() {
+        return Po::uc();
     }
+}
