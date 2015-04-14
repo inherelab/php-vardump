@@ -642,7 +642,7 @@ class Po extends StaticInvokeHelper
         }
 
         ob_start();
-        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+        if ( $phpGt54 = version_compare(PHP_VERSION, '5.4.0', '>=')) {
             debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,$backNum);
         } else {
             debug_print_backtrace(false);
@@ -650,6 +650,12 @@ class Po extends StaticInvokeHelper
 
         $positionInfo = ob_get_clean();
         $positionInfo = strstr($positionInfo, $separator);
+                
+        if ( !$phpGt54 ) {
+            $positionInfo = strstr($positionInfo, ' called at ');
+            $positionInfo = strstr($positionInfo, '#2 ',true);
+        }
+        
         $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
         $positionInfo = str_replace('\\', '/', $positionInfo);
         $root         = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']);
@@ -755,6 +761,3 @@ EOF;
     }
 
 }// class end
-
-
-
