@@ -126,7 +126,7 @@
         global $__print_style_out_mark;
 
         ob_start();
-        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+        if ( $phpGt54 = version_compare(PHP_VERSION, '5.4.0', '>=')) {
             debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,$backNum);
         } else {
             debug_print_backtrace(false);
