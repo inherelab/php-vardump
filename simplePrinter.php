@@ -136,6 +136,12 @@
         // $info = strstr($info, "\n");
         // $info = trim(str_replace(array("\n","#1"), '', $info));
         $positionInfo = strstr($positionInfo, $separator);
+        
+        if ( !$phpGt54 ) {
+            $positionInfo = strstr($positionInfo, ' called at ');
+            $positionInfo = strstr($positionInfo, '#2 ',true);
+        }
+        
         $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
         $positionInfo = str_replace('\\', '/', $positionInfo);
         $root         = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']);
