@@ -32,5 +32,5 @@ include_once './../simplePrinter.php';
 
 ##效果
 <a href="https://raw.githubusercontent.com/inhere/simple-print-tool/master/test/test1.jpg" target="_blank">
-截图
+![alt text](https://raw.githubusercontent.com/inhere/simple-print-tool/master/test/test1.jpg "Title")
 </a>
