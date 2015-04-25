@@ -4,7 +4,7 @@ if (!headers_sent())
 
 static $__print_style_out_mark = FALSE;
 
-if (function_exists('pr'))
+if (!function_exists('pr'))
 {
     /**
      * [vd === print_r 但支持传入多个参数]
@@ -34,7 +34,7 @@ if (function_exists('pr'))
     }
 }
 
-if (function_exists('vd'))
+if (!function_exists('vd'))
 {
     /**
      * 多个打印 === var_dump

@@ -48,7 +48,7 @@ print tool style
   position:relative;
   padding: 5px 15px;border: 1px solid #C6C6D5;border-radius: 5px 5px 0 0;font-size:smaller;margin:1rem 2rem 0;background-color:#3D300D;color:#eee;
 }
-.general-pos-info{padding:0;margin:0;display:inline-block;color:#F2D68A;cursor:default;min-width: 85%;}
+p.general-pos-info{padding:0;margin:0;display:inline-block;color:#F2D68A;cursor:default;min-width: 85%;}
 .general-print-pos>span{height:20px;position:absolute;cursor:pointer;font-weight:bold;}
 .general-print-pos>span:hover{color:#fefefe;}
 .general-print-help{ right:96px;top:12px;line-height:0.1;font-size:22px;color:#3ECB17; }

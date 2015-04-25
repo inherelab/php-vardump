@@ -121,7 +121,7 @@ class Po extends StaticInvokeHelper
 
         $outputData = $this->outputData;
 
-        if ( PrintHelper::isAjax()) {
+        if (self::$detectAjax && PrintHelper::isAjax()) {
             $output     = array(
                 'position' => str_replace(PHP_EOL, '', $positionData),
                 'content'  => PrintHelper::clearTagAndFormat($outputData)
@@ -139,11 +139,11 @@ class Po extends StaticInvokeHelper
             $outputData = $positionData.$outputData;
         }
 
-        self::quit($outputData,$this->exit);
+        if ( !PrintHelper::isWebRequest() ) {
+            $outputData .= "\n<<<<<< $methodName() print out end ......\n";
+        }
 
-        // if (PrintHelper::isAjax() || PrintHelper::isCliMode() ) {
-        //   echo PHP_EOL.'<<<<<< '.$methodName.'() print out end ......',PHP_EOL;
-        // }
+        self::quit($outputData,$this->exit);
     }
 
 ################### 打印输出设置
@@ -175,17 +175,25 @@ class Po extends StaticInvokeHelper
         self::$stripTags = (bool)$value;
     }
 
-    // 开启侦测Ajax请求 @todo 未完善
+    /**
+     * 开启侦测Ajax请求, 需在加载页面时开启(而不是在Ajax请求时调用开启)
+     * @todo 未完善
+     */
     static public function detectAjax($value=true)
     {
         if ($value==='end' && PrintHelper::isAjax() ) {
             self::quit();
         } else {
-            self::$detectAjax = (bool)$value;
+
+            if (self::$detectAjax = (bool)$value) {
+                echo self::_scriptTag();
+            }
         }
     }
 
-################### 调用系统函数打印输出
+//////////////////////////////// 可用方法 ////////////////////////////////
+
+    ## 调用系统函数打印输出
 
     /**
      * vd === var_dump
@@ -236,7 +244,7 @@ class Po extends StaticInvokeHelper
         $this->outputData = $outString;
     }
 
-################### 打印输出，不含类型
+    ## 打印输出，不含类型
 
     /**
      * 多个打印
@@ -288,7 +296,7 @@ class Po extends StaticInvokeHelper
         $this->outputData = $outString;
     }
 
-################### 打印输出，含数据类型
+    ## 打印输出，含数据类型
 
     /**
      * 打印一个或者多个参数： 可以传入多个参数；最后一个若为 _4 则退出程序
@@ -373,7 +381,8 @@ class Po extends StaticInvokeHelper
 
         $this->outputData = $outString;
     }
-################### 打印输出数据解析
+
+//////////////////////////////// 输出数据解析 ////////////////////////////////
 
     /**
      * 格式化打印数组，含类型 长度 ==var_dump
@@ -391,7 +400,11 @@ class Po extends StaticInvokeHelper
             $style = ' style="display:none;"';
         }
 
-        $outString = "<!-- output print start -->\n<div class=\"general-print-box general-print-font general-print-shadow\" $style>\n%s</div>\n<!-- output print end -->".PHP_EOL;
+        $outString = '%s';
+
+        if ( PrintHelper::isWebRequest() ) {
+            $outString = "<!-- output print start -->\n<div class=\"general-print-box general-print-font general-print-shadow\" $style>\n%s</div>\n<!-- output print end -->".PHP_EOL;
+        }
 
         # 使用系统函数打印
         if ( $useSystemPrint ) {
@@ -619,14 +632,15 @@ class Po extends StaticInvokeHelper
         $fun($data);
         $string     = ob_get_clean();
 
-        if ( preg_match('/^<pre[\s]*/i', $string)!=1 ) {
+        if ( PrintHelper::isWebRequest() && preg_match('/^<pre[\s]*/i', $string)!=1 ) {
             $string  = "<pre>$string</pre>";
         }
 
         return PrintHelper::simpleFormat($string);
     }
 
-################### 辅助函数
+//////////////////////////////// 辅助函数 ////////////////////////////////
+
     // 得到函数的调用位置，以免调用太多，找不到调用打印的地方
     public function calledPosition($backNum=6,$separator='#5')
     {
@@ -649,17 +663,17 @@ class Po extends StaticInvokeHelper
 
         if ( !$phpGt54 ) {
             $positionInfo = strstr($positionInfo, ' called at ');
-            $positionInfo = strstr($positionInfo, '#2 ',true);
+            $positionInfo = strstr($positionInfo, "]\n#",true) . ']';
         }
 
-        $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
+        // $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
         $positionInfo = str_replace('\\', '/', $positionInfo);
         $root         = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']);
 
         # ajax
         if (PrintHelper::isAjax() || PrintHelper::isCliMode() || self::$stripTags ) {
             $positionInfo       = str_replace($root, '<-ROOT->', $positionInfo);
-            $this->positionData = PHP_EOL.'>>>>>> The print method '.$positionInfo.PHP_EOL;
+            $this->positionData = "\n>>>>>> The print method $positionInfo\n\n";
 
             return $this;
         }

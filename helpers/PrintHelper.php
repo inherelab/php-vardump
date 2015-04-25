@@ -137,14 +137,20 @@ class PrintHelper
     // 命令模式
     static public function isCliMode()
     {
-      // return PHP_SAPI === 'cli' ? true : false;
-      return php_sapi_name() === 'cli' ? true : false;
+       // return PHP_SAPI === 'cli' ? true : false;
+       return php_sapi_name() === 'cli' ? true : false;
     }
 
     // ajax 请求
     static public function isAjax()
     {
-      return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest'? true:FALSE;
+       return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest'? true:FALSE;
+    }
+
+    // 是正常的网络请求 get post
+    static public function isWebRequest()
+    {
+        return !self::isCliMode() && !self::isAjax();
     }
 
     static public function exportMethod($var, $return=false, $length=200)
