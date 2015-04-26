@@ -34,10 +34,13 @@ include_once __DIR__.'/helpers/StaticInvokeHelper.php';
 class Po extends StaticInvokeHelper
 {
     static private $instance      = null;
-
-    # 数组内容显示隐藏 控制 class name
-    static public $controlClass   = 'js-control-showOrHide';
     static private $hasStyle      = false; # 标记样式是否已经输出
+
+    /**
+     * 控制数组内容显示隐藏的  class name
+     * @var string
+     */
+    static public $controlClass   = 'js-control-showOrHide';
 
     /**
      * $disabled 禁用输出，设置后将不会打印数据。
@@ -66,18 +69,70 @@ class Po extends StaticInvokeHelper
      */
     static private $stripTags     = false;
 
-    public $exit                  = false; // 是否退出
-    public $exitKey               = -4; // 退出关键字
-    public $skipKey               = -5; // 不退出，跳出关键字
-    public $positionData; // 打印位置信息数据
-    public $inputData;
+
+    // 标记打印调用后是否退出程序
+    private $exit    = false;
+
+    // 退出关键字
+    // 当打印函数默认不退出，想让其打印后退出时设置 最后一个参数 === $exitKey
+    public $exitKey = -4;
+
+    // 不退出，跳出关键字
+    // 当打印函数默认退出，想让其打印后不退出(继续执行后续程序)时设置 最后一个参数 === $exitKey
+    public $skipKey = -5;
+
+    public $inputData; // 输入数据 TODO unused
+
+    /**
+     * 打印位置信息数据
+     * @var string
+     */
+    public $positionData;
+
+    /**
+     * 输出数据
+     * @var string
+     */
     public $outputData;
+
 //    public $numberArg; // 参数个数
 //    public $lastArg;   // 传入的最后一个参数
 
+    /**
+     * 设置项目根路径，用于打印时安全替换
+     * 网络请求时，不用可以设置 会默认设置为 $_SERVER['DOCUMENT_ROOT']
+     * 当在 命令行 环境时，需要定义 PROJECT_PATH 来设置 $rootPath
+     *
+     * @example
+     * $rootPath = null; 为空时输出
+     *     p() called at F:\xxx\yyy\test.php:34
+     * 设置 $rootPath = 'F:\xxx\yyy'; 后
+     *     p() called at <ROOT>\test.php:34
+     *
+     * @var string
+     */
+    public $rootPath;
+
+    /**
+     * 设置保存输出数据到文件
+     * @var boolean
+     */
+    public $saveToFile    = false;
+
+    /**
+     * 保存输出数据到文件设置 覆盖内容 false 追加内容 true
+     * @var boolean
+     */
+    public $appendContent = false;
+
+
     public function __construct()
     {
-        // $this->_versionCheck();
+        if ( defined('PROJECT_PATH')) {
+            $this->rootPath = str_replace('\\', '/', PROJECT_PATH);
+        } else {
+            $this->rootPath = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
+        }
     }
 
     static public function owner()
@@ -113,10 +168,6 @@ class Po extends StaticInvokeHelper
 
         $positionData = $this->calledPosition()->positionData;
 
-//        if (!PrintHelper::isAjax()) {
-//            echo $positionData;
-//        }
-
         $this->$methodName($data);
 
         $outputData = $this->outputData;
@@ -130,7 +181,7 @@ class Po extends StaticInvokeHelper
             $outputData = json_encode($output).',';
         }
         else if ( PrintHelper::isCliMode() ) {
-            $outputData = PrintHelper::clearTagAndFormat( $positionData.$outputData );
+            $outputData = PrintHelper::clearTagAndFormat( $outputData );
         }
 
         if ( self::$stripTags ) {
@@ -146,7 +197,7 @@ class Po extends StaticInvokeHelper
         self::quit($outputData,$this->exit);
     }
 
-################### 打印输出设置
+//////////////////////////////// 打印输出设置 ////////////////////////////////
 
     /**
      * 隐藏输出内容，只剩下工具条
@@ -189,6 +240,18 @@ class Po extends StaticInvokeHelper
                 echo self::_scriptTag();
             }
         }
+    }
+
+    /**
+     * 设置输出打印数据到文本
+     * @param  string  $file   [description]
+     * @param  boolean $append [description]
+     * @return self
+     */
+    public function toFile($file, $append = true)
+    {
+        $this->saveToFile    = true;
+        $this->appendContent = true;
     }
 
 //////////////////////////////// 可用方法 ////////////////////////////////
@@ -262,8 +325,7 @@ class Po extends StaticInvokeHelper
 
         if ($last === $this->exitKey) {
             $this->exit   = true;
-        }
-        else {
+        } else {
             $outString .= $this->dump($last,false);
         }
 
@@ -666,24 +728,22 @@ class Po extends StaticInvokeHelper
             $positionInfo = strstr($positionInfo, "]\n#",true) . ']';
         }
 
-        // $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
+        $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
         $positionInfo = str_replace('\\', '/', $positionInfo);
-        $root         = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']);
 
-        # ajax
+        # ajax cli
         if (PrintHelper::isAjax() || PrintHelper::isCliMode() || self::$stripTags ) {
-            $positionInfo       = str_replace($root, '<-ROOT->', $positionInfo);
-            $this->positionData = "\n>>>>>> The print method $positionInfo\n\n";
+            $positionInfo       = str_replace($this->rootPath, '<ROOT>', $positionInfo);
+            $this->positionData = "\n>>>>>> The method $positionInfo\n\n";
 
             return $this;
         }
 
-        $positionInfo = str_replace($root, '&lt;-ROOT-&gt;', $positionInfo);
+        $positionInfo = str_replace($this->rootPath, '&lt;ROOT&gt;', $positionInfo);
         $positionData = '';
 
         # 加载样式和jQuery。 TODO: 同一个页面只加载一次样式和jQuery
-        if (!self::$hasStyle)
-        {
+        if (!self::$hasStyle) {
             $positionData      .= self::_styleTag().PHP_EOL.self::_scriptTag();
             self::$hasStyle     =true;
         }
