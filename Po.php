@@ -180,7 +180,7 @@ class Po extends StaticInvokeHelper
 
             $outputData = json_encode($output).',';
         }
-        else if ( PrintHelper::isCliMode() ) {
+        else if ( !PrintHelper::isWebRequest() ) {
             $outputData = PrintHelper::clearTagAndFormat( $outputData );
         }
 
