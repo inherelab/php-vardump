@@ -707,7 +707,7 @@ class Po extends StaticInvokeHelper
     public function calledPosition($backNum=6,$separator='#5')
     {
         if (!headers_sent())
-            header('Content-Type: text/html; charset=UTF-8');
+            @header('Content-Type: text/html; charset=UTF-8');
 
         if (self::$disabled) {
             return '';
@@ -811,11 +811,11 @@ EOF;
     }
 
     static public function jqueryCdn()
-    {
+    {//http://libs.useso.com/js/jquery/2.1.0/jquery.min.js
         return <<<EOF
 <!--PRINT_OUTPUT_SCRIPT-->
 <script type="text/javascript">
-  !window.jQuery && document.write('<script src="http://libs.useso.com/js/jquery/2.1.0/jquery.min.js"><\/script>');
+  !window.jQuery && document.write('<script src="http://libs.baidu.com/jquery/1.9.1/jquery.min.js"><\/script>');
  </script>
 EOF;
 
