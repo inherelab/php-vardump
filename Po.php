@@ -731,8 +731,8 @@ class Po extends StaticInvokeHelper
         $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
         $positionInfo = str_replace('\\', '/', $positionInfo);
 
-        # ajax cli
-        if (PrintHelper::isAjax() || PrintHelper::isCliMode() || self::$stripTags ) {
+        # ajax cli flash
+        if (!PrintHelper::isWebRequest() || self::$stripTags ) {
             $positionInfo       = str_replace($this->rootPath, '<ROOT>', $positionInfo);
             $this->positionData = "\n>>>>>> The method $positionInfo\n\n";
 

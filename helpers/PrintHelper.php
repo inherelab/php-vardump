@@ -138,19 +138,25 @@ class PrintHelper
     static public function isCliMode()
     {
        // return PHP_SAPI === 'cli' ? true : false;
-       return php_sapi_name() === 'cli' ? true : false;
+       return php_sapi_name() === 'cli';
     }
 
     // ajax 请求
     static public function isAjax()
     {
-       return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest'? true:FALSE;
+       return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest';
+    }
+
+    // ajax 请求
+    static public function isFlash()
+    {
+       return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strpos($_SERVER['HTTP_X_REQUESTED_WITH'],'ShockwaveFlash')!==false;
     }
 
     // 是正常的网络请求 get post
     static public function isWebRequest()
     {
-        return !self::isCliMode() && !self::isAjax();
+        return !self::isCliMode() && !self::isAjax() && !self::isFlash();
     }
 
     static public function exportMethod($var, $return=false, $length=200)
