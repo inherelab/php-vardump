@@ -147,10 +147,17 @@ class PrintHelper
        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest';
     }
 
-    // ajax 请求
+    // flash 请求
     static public function isFlash()
     {
-       return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strpos($_SERVER['HTTP_X_REQUESTED_WITH'],'ShockwaveFlash')!==false;
+       return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && stripos($_SERVER['HTTP_X_REQUESTED_WITH'],'Shockwave')!==false;
+    }
+
+    static public function getIsFlash()
+    {
+        $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT']: null;
+
+        return $userAgent && (stripos($userAgent,'Shockwave')!==false || stripos($userAgent,'Flash')!==false);
     }
 
     // 是正常的网络请求 get post

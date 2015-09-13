@@ -28,8 +28,8 @@
  * 若使用了命名空间 类方法调用 需在最前加上'\'。 @example \Po::d($arg1,$arg2,$arg3,...);
  **/
 
-include_once __DIR__.'/helpers/PrintHelper.php';
-include_once __DIR__.'/helpers/StaticInvokeHelper.php';
+include __DIR__.'/helpers/PrintHelper.php';
+include __DIR__.'/helpers/StaticInvokeHelper.php';
 
 class Po extends StaticInvokeHelper
 {
@@ -40,7 +40,11 @@ class Po extends StaticInvokeHelper
      * 控制数组内容显示隐藏的  class name
      * @var string
      */
-    static public $controlClass   = 'js-control-showOrHide';
+    static private $controlClass   = 'js-control-showOrHide';
+
+    static private $jqueryLoc   = '/static/dep/jquery.js';
+
+    static private $jqueryCdn   = 'http://libs.useso.com/js/jquery/2.1.0/jquery.min.js';
 
     /**
      * $disabled 禁用输出，设置后将不会打印数据。
@@ -100,7 +104,7 @@ class Po extends StaticInvokeHelper
 
     /**
      * 设置项目根路径，用于打印时安全替换
-     * 网络请求时，不用可以设置 会默认设置为 $_SERVER['DOCUMENT_ROOT']
+     * 网络请求时，可以不用设置 会默认设置为 $_SERVER['DOCUMENT_ROOT']
      * 当在 命令行 环境时，需要定义 PROJECT_PATH 来设置 $rootPath
      *
      * @example
@@ -113,19 +117,6 @@ class Po extends StaticInvokeHelper
      */
     public $rootPath;
 
-    /**
-     * 设置保存输出数据到文件
-     * @var boolean
-     */
-    public $saveToFile    = false;
-
-    /**
-     * 保存输出数据到文件设置 覆盖内容 false 追加内容 true
-     * @var boolean
-     */
-    public $appendContent = false;
-
-
     public function __construct()
     {
         if ( defined('PROJECT_PATH')) {
@@ -133,6 +124,11 @@ class Po extends StaticInvokeHelper
         } else {
             $this->rootPath = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
         }
+    }
+
+    static public function config(array $config)
+    {
+        # code...
     }
 
     static public function owner()
@@ -172,6 +168,7 @@ class Po extends StaticInvokeHelper
 
         $outputData = $this->outputData;
 
+        /** ajax 请求 且开启 ajax 检测 @TODO 未完善 */
         if (self::$detectAjax && PrintHelper::isAjax()) {
             $output     = array(
                 'position' => str_replace(PHP_EOL, '', $positionData),
@@ -179,8 +176,9 @@ class Po extends StaticInvokeHelper
             );
 
             $outputData = json_encode($output).',';
-        }
-        else if ( !PrintHelper::isWebRequest() ) {
+
+        // 非 web 请求， CLI 命令行环境
+        } elseif ( !PrintHelper::isWebRequest() ) {
             $outputData = PrintHelper::clearTagAndFormat( $outputData );
         }
 
@@ -240,18 +238,6 @@ class Po extends StaticInvokeHelper
                 echo self::_scriptTag();
             }
         }
-    }
-
-    /**
-     * 设置输出打印数据到文本
-     * @param  string  $file   [description]
-     * @param  boolean $append [description]
-     * @return self
-     */
-    public function toFile($file, $append = true)
-    {
-        $this->saveToFile    = true;
-        $this->appendContent = true;
     }
 
 //////////////////////////////// 可用方法 ////////////////////////////////
@@ -408,6 +394,31 @@ class Po extends StaticInvokeHelper
         }
 
         $this->outputData = $outString;
+    }
+
+    /**
+     * 默认打印数据保存文件
+     * @var string
+     */
+    private static $tempFile = 'dump.txt';
+
+    /**
+     * 设置保存输出数据到文件
+     * @var boolean
+     */
+    private static $saveToFile    = false;
+
+    /**
+     * 保存输出数据到文件设置
+     * true 追加内容
+     * false 覆盖内容
+     * @var boolean
+     */
+    private static $appendData = true;
+
+    protected function dFile()
+    {
+        # code...
     }
 
     /**
@@ -580,8 +591,7 @@ class Po extends StaticInvokeHelper
     static private function _handleTypeOutput($data,$hasType=true,$mark=true,$outString='')
     {
         # 常规打印，不含有类型
-        if (!$hasType)
-        {
+        if (!$hasType) {
             return self::_handleNormalOutput($data);
         }
 
@@ -595,8 +605,7 @@ class Po extends StaticInvokeHelper
 
         // if (is_object($data)) $data = (array)$data;
         # 含类型打印
-        if ( is_array($data) )
-        {
+        if ( is_array($data) ) {
             $count = 'count';
             $mark && $outString .= "<dt>\n<span class=\"print-icon icon-hide\"></span><div class=\"{$jsClass}\" style=\"width:98%\">".
             "<strong class=\"general-print-color-dg\">{$ucfirst($dataType)}</strong>(size:<strong>{$count($data)}</strong>)<strong>(</strong></div>\n</dt>\n";
@@ -609,8 +618,7 @@ class Po extends StaticInvokeHelper
                 $k          = is_int($k) ? $k : "'{$html($k,ENT_QUOTES)}'";
                 $outString .= "\n<dl>\n<dt><div class=\"array-key\">$tab$k</div>";
 
-                if ( is_array($v) || is_object($v) || is_resource($data) )
-                {//
+                if ( is_array($v) || is_object($v) || is_resource($data) ) {//
                     $outString .= "<div class=\"array-value {$jsClass}\"> &rArr; <strong class=\"general-print-color-dg\">{$ucfirst($vType)}</strong>(size:";
 
                     if (empty($v)) {
@@ -621,8 +629,7 @@ class Po extends StaticInvokeHelper
 
                     $outString .= "<strong>{$count((array)$v)}</strong>)<strong>(</strong></div>\n<span class=\"print-icon icon-hide\"></span></dt>\n";
                     $outString .= ltrim(self::_handleTypeOutput($v,true,false),'<dl>');
-                }
-                else {
+                } else {
                     $length_html = '';
 
                     if ( $v === null )   {
@@ -643,13 +650,9 @@ class Po extends StaticInvokeHelper
 
             $endTab = substr($tab,0,-($i-1));
             $outString .= "\n</dd><!-- /.general-print-ar-content -->\n</dl>\n<dl><dt><strong>$endTab)</strong></dt>";
-        }
-        else if ( is_object($data) )
-        {
+        } else if ( is_object($data) ) {
             $outString .= self::getSystemPrintData($data);
-        }
-        else if (is_resource($data))
-        {
+        } else if (is_resource($data)) {
             if ( ( $dataType = get_resource_type( $data ) ) === 'stream' and $meta = stream_get_meta_data( $data ) ) {
 
                 if ( isset( $meta['uri'] ) ) {
@@ -805,17 +808,23 @@ EOF;
 
         $jsCode = str_replace($find, $replace, trim($jsCode));
 
-        $jsTag = "%s<script type=\"text/javascript\">\n %s \n</script>\n<!--PRINT_OUTPUT_SCRIPT-->\n";
+        $jsTag = "%s<script type=\"text/javascript\">\n" .'%s ' ."\n</script>\n<!--PRINT_OUTPUT_SCRIPT-->\n";
 
-        return sprintf($jsTag, self::jqueryCdn() ,$jsCode);
+        return sprintf($jsTag, self::_jqueryLoad() ,$jsCode);
     }
 
-    static public function jqueryCdn()
-    {//http://libs.useso.com/js/jquery/2.1.0/jquery.min.js
+    static public function _jqueryLoad()
+    {
+        $jqueryCdn = self::$jqueryCdn;
+        $jqueryLoc = self::$jqueryLoc;
+
         return <<<EOF
 <!--PRINT_OUTPUT_SCRIPT-->
 <script type="text/javascript">
-  !window.jQuery && document.write('<script src="http://libs.baidu.com/jquery/1.9.1/jquery.min.js"><\/script>');
+  !window.jQuery && document.write('<script src="$jqueryCdn"><\/script>');
+ </script>
+<script type="text/javascript">
+  !window.jQuery && document.write('<script src="$jqueryLoc"><\/script>');
  </script>
 EOF;
 

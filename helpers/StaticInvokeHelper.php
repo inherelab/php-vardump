@@ -51,13 +51,13 @@ abstract class StaticInvokeHelper
      */
     static public function __callStatic($method, array $args)
     {
-        $calledClassname = get_called_class();
+        $calledClassName = get_called_class();
 
-        if ( !isset(self::$instanceContainer[$calledClassname]) ) {
-            self::$instanceContainer[$calledClassname] = new $calledClassname();
+        if ( !isset(self::$instanceContainer[$calledClassName]) ) {
+            self::$instanceContainer[$calledClassName] = new $calledClassName();
         }
 
-        $_this_                = self::$instanceContainer[$calledClassname];
+        $_this_                = self::$instanceContainer[$calledClassName];
 
         // return call_user_func_array(array($_this_,$method), $args );
         return call_user_func_array(array($_this_,'invoking'), array($method, $args) );
