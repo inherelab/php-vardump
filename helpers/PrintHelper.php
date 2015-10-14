@@ -4,17 +4,37 @@
  * Auth: Inhere
  * Date: 15-1-20
  * Time: 10:35
- * Be used to:
  */
 
 class PrintHelper
 {
+
+    /**
+     * @param $data
+     * @param bool $hasType
+     * @return mixed
+     */
+    public static function getSystemPrintData($data,$hasType=true)
+    {
+        $fun = $hasType ? 'var_dump' : 'print_r';
+
+        ob_start();
+        $fun($data);
+        $string     = ob_get_clean();
+
+        if ( self::isWebRequest() && preg_match('/^<pre[\s]*/i', $string)!=1 ) {
+            $string  = "<pre>$string</pre>";
+        }
+
+        return self::simpleFormat($string);
+    }
+
     /**
      * 清除标签并格式化数据
      * @param string $data
      * @return mixed|string
      */
-    static public function clearTagAndFormat($data)
+    public static function clearTagAndFormat($data)
     {
         if (!$data || !is_string($data)) {
             return $data;
@@ -35,7 +55,7 @@ class PrintHelper
         return $data;
     }
 
-    static public function simpleFormat($data)
+    public static function simpleFormat($data)
     {
         if (!$data || !is_string($data)) {
             return $data;
@@ -50,7 +70,7 @@ class PrintHelper
         return $data;
     }
 
-    static public function versionCheck()
+    public static function versionCheck()
     {
         # code...
         $re = version_compare(PHP_VERSION, '5.4.0') >= 0;
@@ -61,21 +81,17 @@ class PrintHelper
     }
 
     // 计算字符长度
-    static public function strLength($str)
+    public static function strLength($str)
     {
-        if (empty($str)) {
-            return '0';
-        }
-
-        if ($str=='0') {
+        if ( $str==='0' || $str === 0 ) 
             return '1';
-        }
 
-        if (function_exists('mb_strlen'))
-        {
+        if ( empty($str) ) 
+            return '0';
+
+        if (function_exists('mb_strlen')) {
             return mb_strlen($str,'utf-8');
-        }
-        else {
+        } else {
             preg_match_all("/./u", $str, $arr);
             return count($arr[0]);
         }
@@ -90,7 +106,7 @@ class PrintHelper
      * @throws Exception
      * @return array             返回内容
      */
-    static public function getLines($fileName, $startLine = 1, $endLine = 50, $method = 'rb')
+    public static function getLines($fileName, $startLine = 1, $endLine = 50, $method = 'rb')
     {
         $content = array();
 
@@ -135,25 +151,25 @@ class PrintHelper
     }
 
     // 命令模式
-    static public function isCliMode()
+    public static function isCliMode()
     {
        // return PHP_SAPI === 'cli' ? true : false;
        return php_sapi_name() === 'cli';
     }
 
     // ajax 请求
-    static public function isAjax()
+    public static function isAjax()
     {
        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest';
     }
 
     // flash 请求
-    static public function isFlash()
+    public static function isFlash()
     {
        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && stripos($_SERVER['HTTP_X_REQUESTED_WITH'],'Shockwave')!==false;
     }
 
-    static public function getIsFlash()
+    public static function getIsFlash()
     {
         $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT']: null;
 
@@ -161,12 +177,13 @@ class PrintHelper
     }
 
     // 是正常的网络请求 get post
-    static public function isWebRequest()
+    public static function isWebRequest()
     {
         return !self::isCliMode() && !self::isAjax() && !self::isFlash();
     }
 
-    static public function exportMethod($var, $return=false, $length=200)
+
+    public static function varExport($var, $return=false, $length=200)
     {
         $string = var_export($var,true);
 

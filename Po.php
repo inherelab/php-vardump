@@ -248,8 +248,6 @@ class Po extends StaticInvokeHelper
      * vd === var_dump
      * @param $param
      * @param string $outString
-     * @internal param string $value description]
-     * @return void
      */
     protected function vd($param,$outString= '')
     {
@@ -261,8 +259,7 @@ class Po extends StaticInvokeHelper
 
         if ($last === $this->exitKey) {
             $this->exit = true;
-        }
-        else {
+        } else {
             $outString .= $this->dump($last,true,true);
         }
 
@@ -273,8 +270,6 @@ class Po extends StaticInvokeHelper
      * pr === print_r 但支持传入多个参数
      * @param $param
      * @param string $outString
-     * @internal param string $value
-     * @return void
      */
     protected function pr($param,$outString= '')
     {
@@ -283,10 +278,10 @@ class Po extends StaticInvokeHelper
         foreach ($param as $value) {
             $outString .= $this->dump($value,false,true);
         }
+
         if ($last === $this->exitKey) {
             $this->exit = true;
-        }
-        else {
+        } else {
             $outString .= $this->dump($last,false,true);
         }
 
@@ -322,7 +317,6 @@ class Po extends StaticInvokeHelper
      * 多个打印,会退出
      * @param $param
      * @param string $outString
-     * @return void
      */
     protected function pe($param,$outString= '')
     {
@@ -336,8 +330,7 @@ class Po extends StaticInvokeHelper
 
         if ($last === $this->skipKey) {
             $this->exit  = false;
-        }
-        else {
+        } else {
             $outString .= $this->dump($last,false);
         }
 
@@ -362,8 +355,7 @@ class Po extends StaticInvokeHelper
 
         if ($last === $this->exitKey) {
             $this->exit   = true;
-        }
-        else {
+        } else {
             $outString .= $this->dump($last);
         }
 
@@ -374,7 +366,6 @@ class Po extends StaticInvokeHelper
      * 同d(),但是打印后会立即退出程序；最后一个若为 _5 则放弃退出
      * @param $param
      * @param string $outString
-     * @return void
      */
     protected function de($param,$outString= '')
     {
@@ -384,12 +375,11 @@ class Po extends StaticInvokeHelper
             $outString .= $this->dump($value);
         }
 
-        $this->exit       = true;
+        $this->exit = true;
 
         if ($last === $this->skipKey) {
             $this->exit   = false;
-        }
-        else {
+        } else {
             $outString .= $this->dump($last);
         }
 
@@ -416,9 +406,16 @@ class Po extends StaticInvokeHelper
      */
     private static $appendData = true;
 
-    protected function dFile()
+    protected function log()
     {
-        # code...
+        $args = func_get_args();
+        $str = PHP_EOL;
+
+        foreach ($args as $arg) {
+            $str .= PrintHelper::getSystemPrintData($arg,true);
+        }
+
+        error_log($str, 3, self::$tempFile);
     }
 
     /**
@@ -447,8 +444,7 @@ class Po extends StaticInvokeHelper
 
         if ($last === '_4') {
             $this->exit   = true;
-        }
-        else {
+        } else {
             $outString .= $this->dump($last, $hasType, $useSystemPrint);
         }
 
@@ -481,7 +477,7 @@ class Po extends StaticInvokeHelper
 
         # 使用系统函数打印
         if ( $useSystemPrint ) {
-            $result       = self::getSystemPrintData($data,$hasType);
+            $result       = PrintHelper::getSystemPrintData($data,$hasType);
             $outString    = sprintf($outString,$result);
         }# 自定义函数
         else {
@@ -534,8 +530,7 @@ class Po extends StaticInvokeHelper
 
                     $outString .= "<strong>{$count((array)$v)}</strong>)<strong>(</strong></div><span class=\"print-icon icon-hide\"></span>\n</dt>".PHP_EOL;
                     $outString .= ltrim(self::_handleNormalOutput($v,false),'<dl>');
-                }
-                else {
+                } else {
 
                     if ($v === false) $v = 'bool(false)';
                     if ($v === true ) $v = 'bool(true)';
@@ -549,7 +544,7 @@ class Po extends StaticInvokeHelper
 
             $outString .= PHP_EOL.'</dd><!-- /.general-print-ar-content -->'.PHP_EOL.'</dl>'.PHP_EOL.'<dl><dt><strong>)</strong></dt>';
         } else if ( is_object($data) ) {
-            $outString .= self::getSystemPrintData($data,0);
+            $outString .= PrintHelper::getSystemPrintData($data,0);
         } else if (is_resource($data)) {
             if ( ( $type = get_resource_type( $data ) ) === 'stream' and $meta = stream_get_meta_data( $data ) ) {
 
@@ -651,7 +646,7 @@ class Po extends StaticInvokeHelper
             $endTab = substr($tab,0,-($i-1));
             $outString .= "\n</dd><!-- /.general-print-ar-content -->\n</dl>\n<dl><dt><strong>$endTab)</strong></dt>";
         } else if ( is_object($data) ) {
-            $outString .= self::getSystemPrintData($data);
+            $outString .= PrintHelper::getSystemPrintData($data);
         } else if (is_resource($data)) {
             if ( ( $dataType = get_resource_type( $data ) ) === 'stream' and $meta = stream_get_meta_data( $data ) ) {
 
@@ -687,21 +682,6 @@ class Po extends StaticInvokeHelper
         }
 
         return $outString.'</dl>'.PHP_EOL;
-    }
-
-    static public function getSystemPrintData($data,$hasType=true)
-    {
-        $fun = $hasType ? 'var_dump' : 'print_r';
-
-        ob_start();
-        $fun($data);
-        $string     = ob_get_clean();
-
-        if ( PrintHelper::isWebRequest() && preg_match('/^<pre[\s]*/i', $string)!=1 ) {
-            $string  = "<pre>$string</pre>";
-        }
-
-        return PrintHelper::simpleFormat($string);
     }
 
 //////////////////////////////// 辅助函数 ////////////////////////////////
@@ -813,7 +793,7 @@ EOF;
         return sprintf($jsTag, self::_jqueryLoad() ,$jsCode);
     }
 
-    static public function _jqueryLoad()
+    public static function _jqueryLoad()
     {
         $jqueryCdn = self::$jqueryCdn;
         $jqueryLoc = self::$jqueryLoc;
@@ -830,7 +810,7 @@ EOF;
 
     }
 
-    static public function quit($msg='', $exit=true)
+    public static function quit($msg='', $exit=true)
     {
         if ($exit) {
             exit($msg);

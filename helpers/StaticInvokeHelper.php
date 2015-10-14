@@ -5,13 +5,13 @@
  * @Date: 14-11-15
  * @Time: 下午3:16
  * 能够使用静态方式访问 类的动态方法
- * @USE: extends ulue\core\utils\StaticInvokHelper;
- * StaticInvokHelper.php
+ * @USE: extends ulue\core\utils\StaticInvokeHelper;
+ * StaticInvokeHelper.php
  */
 
 abstract class StaticInvokeHelper
 {
-    static private $instanceContainer  = array();
+    static private $objContainer  = array();
 
     // 记录调用的方法名
     public $calledMethod;
@@ -22,14 +22,19 @@ abstract class StaticInvokeHelper
      * 1 方法无前缀和后缀:
      *     但要将方法定义为 受保护的(protected) 或 私有(private)
      * 2 使用前缀:
-     * @example  class Demo
-     * setting: $methodPrefix = 'method';
-     * function: public function methodTest(){}
+     * @example
+     * class Demo {
+     *      static public $methodPrefix = 'prefix';
+     *      public function prefixTest(){ ... }
+     * }
      * invoke : Demo::test()
+     *
      * 3 使用后缀:
-     * @example  class Demo
-     * setting: $methodSuffix = 'Method';
-     * function: public function testMethod(){}
+     * @example
+     * class Demo {
+     *      static public $methodSuffix = 'Suffix';
+     *      public function testSuffix(){ ... }
+     * }
      * invoke : Demo::test()
      */
     static public $defMethodType = '1';
@@ -45,30 +50,28 @@ abstract class StaticInvokeHelper
 
     /**
      * __callStatic 能够使用静态方式访问 类的动态方法]
-     * @param  string $method [description]
-     * @param  array $args [description]
+     * @param  string $method
+     * @param  array $args
      * @return mixed
      */
-    static public function __callStatic($method, array $args)
+    public static function __callStatic($method, array $args)
     {
         $calledClassName = get_called_class();
 
-        if ( !isset(self::$instanceContainer[$calledClassName]) ) {
-            self::$instanceContainer[$calledClassName] = new $calledClassName();
-        }
+        if ( !isset(self::$objContainer[$calledClassName]) )
+            self::$objContainer[$calledClassName] = new $calledClassName();
 
-        $_this_                = self::$instanceContainer[$calledClassName];
+        $self  = self::$objContainer[$calledClassName];
 
         // return call_user_func_array(array($_this_,$method), $args );
-        return call_user_func_array(array($_this_,'invoking'), array($method, $args) );
-
+        return call_user_func_array(array($self,'invoking'), array($method, $args) );
     }
 
     /**
      * 同样允许以常规方式调用
-     * @param  string $method [description]
-     * @param  array  $args [description]
-     * @return mixed       [description]
+     * @param  string $method
+     * @param  array  $args
+     * @return mixed
      */
     public function __call($method, array $args)
     {
@@ -80,10 +83,8 @@ abstract class StaticInvokeHelper
 
             // return call_user_func_array(array($this,$method), $args);
             return call_user_func_array(array($this,'invoking'), array( $method, $args[0]));
-        }
-        else {
+        } else 
             trigger_error('error call! Class method [ '.get_class($this)."::$oldMethod() ] does not exist or not allow access!!",E_USER_ERROR);
-        }
 
         return false;
     }
@@ -96,9 +97,8 @@ abstract class StaticInvokeHelper
         //     return true;
         // }
 
-        if ( empty($allowCall) || !is_array($allowCall)) {
+        if ( empty($allowCall) || !is_array($allowCall)) 
             return false;
-        }
 
         return in_array( $method,$allowCall ) ? true : false;
     }
@@ -107,13 +107,11 @@ abstract class StaticInvokeHelper
     {
         $allowCall = $this->allowInvokerCall();
 
-        if ( empty($allowCall) ) {
+        if ( empty($allowCall) ) 
             return null;
-        }
 
-        if ( is_array($allowCall) ) {
+        if ( is_array($allowCall) ) 
             return $allowCall;
-        }
 
         if ( is_string($allowCall) ) {
             $allowCall = str_replace(' ', '', $allowCall);
@@ -122,10 +120,9 @@ abstract class StaticInvokeHelper
         }
 
         return null;
-
     }
 
-    static private function _checkUseType($method)
+    private static function _checkUseType($method)
     {
         $defMethodType = trim(static::$defMethodType);
         $method        = trim($method);
@@ -134,9 +131,8 @@ abstract class StaticInvokeHelper
             case '2':{
                 $methodPrefix = static::$methodPrefix;
 
-                if (empty($methodPrefix) || !is_string($methodPrefix)) {
+                if (empty($methodPrefix) || !is_string($methodPrefix))
                     trigger_error('请设置方法前缀属性值：$methodPrefix ',E_USER_ERROR);
-                }
 
                 $methodName = $methodPrefix.ucfirst($method);
                 break;
@@ -145,9 +141,8 @@ abstract class StaticInvokeHelper
             case '3':{
                 $methodSuffix = static::$methodSuffix;
 
-                if (empty($methodSuffix) || !is_string($methodSuffix)) {
+                if (empty($methodSuffix) || !is_string($methodSuffix))
                     trigger_error('请设置方法后缀属性值：$methodSuffix ',E_USER_ERROR);
-                }
 
                 $methodName = $method.ucfirst($methodSuffix);
                 break;
