@@ -117,6 +117,29 @@ class Po extends StaticInvokeHelper
      */
     public $rootPath;
 
+    /**
+     * 传入进来的变量的名称
+     * @var array
+     */
+    protected $varNames = [];
+
+    /**
+     * 在 $GLOBALS 中搜索变量名时要先排除的信息
+     * @var array
+     */
+    private $exceptVars = array('GLOBALS'=>0,'_ENV'=>0,'HTTP_ENV_VARS'=>0,'ALLUSERSPROFILE'=>0,'CommonProgramFiles'=>0,'COMPUTERNAME'=>0,
+        'ComSpec'=>0,'FP_NO_HOST_CHECK'=>0,'NUMBER_OF_PROCESSORS'=>0,'OS'=>0,'Path'=>0,'PATHEXT'=>0,'PROCESSOR_ARCHITECTURE'=>0,
+        'PROCESSOR_IDENTIFIER'=>0,'PROCESSOR_LEVEL'=>0,'PROCESSOR_REVISION'=>0,'ProgramFiles'=>0,'SystemDrive'=>0,'SystemRoot'=>0,
+        'TEMP'=>0,'TMP'=>0,'USERPROFILE'=>0,'VBOX_INSTALL_PATH'=>0,'windir'=>0,'AP_PARENT_PID'=>0,'uchome_loginuser'=>0,'supe_cookietime'=>0,
+        'supe_auth'=>0,'Mwp6_lastvisit'=>0,'Mwp6_home_readfeed'=>0,'Mwp6_smile'=>0,'Mwp6_onlineindex'=>0,'Mwp6_sid'=>0,'Mwp6_lastact'=>0,
+        'PHPSESSID'=>0,'HTTP_ACCEPT'=>0,'HTTP_REFERER'=>0,'HTTP_ACCEPT_LANGUAGE'=>0,'HTTP_USER_AGENT'=>0,'HTTP_ACCEPT_ENCODING'=>0,'HTTP_HOST'=>0,
+        'HTTP_CONNECTION'=>0,'HTTP_COOKIE'=>0,'PATH'=>0,'COMSPEC'=>0,'WINDIR'=>0,'SERVER_SIGNATURE'=>0,'SERVER_SOFTWARE'=>0,'SERVER_NAME'=>0,
+        'SERVER_ADDR'=>0,'SERVER_PORT'=>0,'REMOTE_ADDR'=>0,'DOCUMENT_ROOT'=>0,'SERVER_ADMIN'=>0,'SCRIPT_FILENAME'=>0,'REMOTE_PORT'=>0,
+        'GATEWAY_INTERFACE'=>0,'SERVER_PROTOCOL'=>0,'REQUEST_METHOD'=>0,'QUERY_STRING'=>0,'REQUEST_URI'=>0,'SCRIPT_NAME'=>0,'PHP_SELF'=>0,
+        'REQUEST_TIME'=>0,'argv'=>0,'argc'=>0,'_POST'=>0,'HTTP_POST_VARS'=>0,'_GET'=>0,'HTTP_GET_VARS'=>0,'_COOKIE'=>0,
+        'HTTP_COOKIE_VARS'=>0,'_SERVER'=>0,'HTTP_SERVER_VARS'=>0,'_FILES'=>0,'HTTP_POST_FILES'=>0,'_REQUEST'=>0
+    );
+
     public function __construct()
     {
         if ( defined('PROJECT_PATH')) {
@@ -160,6 +183,12 @@ class Po extends StaticInvokeHelper
     {
         if ( !method_exists($this, $methodName) ) {
             self::quit('The Class <b>'.get_class($this)."</b> don't has method $methodName() !");
+        }
+
+        // 提取变量名称
+        $allVar = array_diff_key($GLOBALS, $this->exceptVars);
+        foreach($allVar as $key => $val){
+            $this->varNames[$key] = $val;
         }
 
         $positionData = $this->calledPosition()->positionData;
