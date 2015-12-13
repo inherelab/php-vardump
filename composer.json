@@ -1,0 +1,16 @@
+{
+    "name": "inhere/simple-print-tool",
+    "description": "a simple php code format print tool",
+    "keywords": ["print","tool","format"],
+    "homepage": "http://www.yzone.net",
+    "license": "Apache License 2.0",
+    "authors": [
+        {
+            "name": "inhere",
+            "email": "in.798@qq.com"
+        }
+    ],
+    "autoload": {
+        "files": ["inhere/simple-printer/functions.php"]
+    }
+}
