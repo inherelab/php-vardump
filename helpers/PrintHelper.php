@@ -193,13 +193,8 @@ class PrintHelper
     // 命令模式
     public static function isCliMode()
     {
-<<<<<<< HEAD:helpers/PrintHelper.php
        // return PHP_SAPI === 'cli' ? true : false;
        return php_sapi_name() === 'cli';
-=======
-      // return PHP_SAPI === 'cli' ? true : false;
-      return php_sapi_name() === 'cli' ? true : false;
->>>>>>> 9d049e0376d45793f7ca5e7b7a0dea3b9c65f0fb:helpers/PrintHelper.php
     }
 
     // ajax 请求

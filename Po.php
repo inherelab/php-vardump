@@ -842,7 +842,6 @@ EOF;
   !window.jQuery && document.write('<script src="$jqueryLoc"><\/script>');
  </script>
 EOF;
-
     }
 
     public static function quit($msg='', $exit=true)
