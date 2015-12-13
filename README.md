@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # simple-print-tool
 a simple php print tool, 简单的php数据打印工具
 
