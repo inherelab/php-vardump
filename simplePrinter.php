@@ -4,7 +4,11 @@ if (!headers_sent())
 
 static $__print_style_out_mark = FALSE;
 
+<<<<<<< HEAD
 if (!function_exists('pr'))
+=======
+if (function_exists('pr'))
+>>>>>>> 9d049e0376d45793f7ca5e7b7a0dea3b9c65f0fb
 {
     /**
      * [vd === print_r 但支持传入多个参数]
@@ -34,7 +38,11 @@ if (!function_exists('pr'))
     }
 }
 
+<<<<<<< HEAD
 if (!function_exists('vd'))
+=======
+if (function_exists('vd'))
+>>>>>>> 9d049e0376d45793f7ca5e7b7a0dea3b9c65f0fb
 {
     /**
      * 多个打印 === var_dump

@@ -8,6 +8,46 @@
 
 class PrintHelper
 {
+    /**
+     * 清除标签并格式化数据
+     * @param string $data
+     * @return mixed|string
+     */
+    static public function clearTagAndFormat($data)
+    {
+        if (!$data || !is_string($data)) {
+            return $data;
+        }
+
+        $data = strip_tags($data);
+        $data = str_replace(
+            array('&rArr;', '&gt;'),
+            array('=>', '>'),
+            $data
+        );
+        $data = preg_replace(
+            array( "/[\n\r]+/i", "/Array[\s]*\(/","/=>[\s]+/i" ),
+            array( "\n", 'Array (',"=> " ),
+            $data
+        );
+
+        return $data;
+    }
+
+    static public function simpleFormat($data)
+    {
+        if (!$data || !is_string($data)) {
+            return $data;
+        }
+
+        $data = preg_replace(
+            array( "/[\n\r]+/i", "/Array[\s]*\(/","/=>[\s]+/i" ),
+            array( "\n", 'Array (',"=> " ),
+            $data
+        );
+
+        return $data;
+    }
 
     /**
      * @param $data
@@ -153,8 +193,13 @@ class PrintHelper
     // 命令模式
     public static function isCliMode()
     {
+<<<<<<< HEAD:helpers/PrintHelper.php
        // return PHP_SAPI === 'cli' ? true : false;
        return php_sapi_name() === 'cli';
+=======
+      // return PHP_SAPI === 'cli' ? true : false;
+      return php_sapi_name() === 'cli' ? true : false;
+>>>>>>> 9d049e0376d45793f7ca5e7b7a0dea3b9c65f0fb:helpers/PrintHelper.php
     }
 
     // ajax 请求

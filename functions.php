@@ -12,10 +12,16 @@ if (!function_exists('p'))
       Po::owner()->p(func_get_args());
     }
 }
+<<<<<<< HEAD
 
 if (!function_exists('pe'))
 {
 
+=======
+
+if (!function_exists('pe'))
+{
+>>>>>>> 9d049e0376d45793f7ca5e7b7a0dea3b9c65f0fb
     function pe()
     {
       Po::owner()->pe(func_get_args());

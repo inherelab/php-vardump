@@ -34,6 +34,7 @@ include __DIR__.'/helpers/StaticInvokeHelper.php';
 class Po extends StaticInvokeHelper
 {
     static private $instance      = null;
+
     static private $hasStyle      = false; # 标记样式是否已经输出
 
     /**
@@ -127,17 +128,22 @@ class Po extends StaticInvokeHelper
      * 在 $GLOBALS 中搜索变量名时要先排除的信息
      * @var array
      */
-    private $exceptVars = array('GLOBALS'=>0,'_ENV'=>0,'HTTP_ENV_VARS'=>0,'ALLUSERSPROFILE'=>0,'CommonProgramFiles'=>0,'COMPUTERNAME'=>0,
-        'ComSpec'=>0,'FP_NO_HOST_CHECK'=>0,'NUMBER_OF_PROCESSORS'=>0,'OS'=>0,'Path'=>0,'PATHEXT'=>0,'PROCESSOR_ARCHITECTURE'=>0,
-        'PROCESSOR_IDENTIFIER'=>0,'PROCESSOR_LEVEL'=>0,'PROCESSOR_REVISION'=>0,'ProgramFiles'=>0,'SystemDrive'=>0,'SystemRoot'=>0,
-        'TEMP'=>0,'TMP'=>0,'USERPROFILE'=>0,'VBOX_INSTALL_PATH'=>0,'windir'=>0,'AP_PARENT_PID'=>0,'uchome_loginuser'=>0,'supe_cookietime'=>0,
-        'supe_auth'=>0,'Mwp6_lastvisit'=>0,'Mwp6_home_readfeed'=>0,'Mwp6_smile'=>0,'Mwp6_onlineindex'=>0,'Mwp6_sid'=>0,'Mwp6_lastact'=>0,
-        'PHPSESSID'=>0,'HTTP_ACCEPT'=>0,'HTTP_REFERER'=>0,'HTTP_ACCEPT_LANGUAGE'=>0,'HTTP_USER_AGENT'=>0,'HTTP_ACCEPT_ENCODING'=>0,'HTTP_HOST'=>0,
-        'HTTP_CONNECTION'=>0,'HTTP_COOKIE'=>0,'PATH'=>0,'COMSPEC'=>0,'WINDIR'=>0,'SERVER_SIGNATURE'=>0,'SERVER_SOFTWARE'=>0,'SERVER_NAME'=>0,
-        'SERVER_ADDR'=>0,'SERVER_PORT'=>0,'REMOTE_ADDR'=>0,'DOCUMENT_ROOT'=>0,'SERVER_ADMIN'=>0,'SCRIPT_FILENAME'=>0,'REMOTE_PORT'=>0,
-        'GATEWAY_INTERFACE'=>0,'SERVER_PROTOCOL'=>0,'REQUEST_METHOD'=>0,'QUERY_STRING'=>0,'REQUEST_URI'=>0,'SCRIPT_NAME'=>0,'PHP_SELF'=>0,
-        'REQUEST_TIME'=>0,'argv'=>0,'argc'=>0,'_POST'=>0,'HTTP_POST_VARS'=>0,'_GET'=>0,'HTTP_GET_VARS'=>0,'_COOKIE'=>0,
-        'HTTP_COOKIE_VARS'=>0,'_SERVER'=>0,'HTTP_SERVER_VARS'=>0,'_FILES'=>0,'HTTP_POST_FILES'=>0,'_REQUEST'=>0
+    private $exceptVars = array('GLOBALS'=>0,'_ENV'=>0,'HTTP_ENV_VARS'=>0,'ALLUSERSPROFILE'=>0,
+        'CommonProgramFiles'=>0,'COMPUTERNAME'=>0,'ComSpec'=>0,'FP_NO_HOST_CHECK'=>0,'NUMBER_OF_PROCESSORS'=>0,
+        'OS'=>0,'Path'=>0,'PATHEXT'=>0,'PROCESSOR_ARCHITECTURE'=>0,'PROCESSOR_IDENTIFIER'=>0,
+        'PROCESSOR_LEVEL'=>0,'PROCESSOR_REVISION'=>0,'ProgramFiles'=>0,'SystemDrive'=>0,'SystemRoot'=>0,
+        'TEMP'=>0,'TMP'=>0,'USERPROFILE'=>0,'VBOX_INSTALL_PATH'=>0,'windir'=>0,'AP_PARENT_PID'=>0,
+        'uchome_loginuser'=>0,'supe_cookietime'=>0,'supe_auth'=>0,'Mwp6_lastvisit'=>0,
+        'Mwp6_home_readfeed'=>0,'Mwp6_smile'=>0,'Mwp6_onlineindex'=>0,'Mwp6_sid'=>0,'Mwp6_lastact'=>0,
+        'PHPSESSID'=>0,'HTTP_ACCEPT'=>0,'HTTP_REFERER'=>0,'HTTP_ACCEPT_LANGUAGE'=>0,'HTTP_USER_AGENT'=>0,
+        'HTTP_ACCEPT_ENCODING'=>0,'HTTP_HOST'=>0,'HTTP_CONNECTION'=>0,'HTTP_COOKIE'=>0,
+        'PATH'=>0,'COMSPEC'=>0,'WINDIR'=>0,'SERVER_SIGNATURE'=>0,'SERVER_SOFTWARE'=>0,'SERVER_NAME'=>0,
+        'SERVER_ADDR'=>0,'SERVER_PORT'=>0,'REMOTE_ADDR'=>0,'DOCUMENT_ROOT'=>0,'SERVER_ADMIN'=>0,
+        'SCRIPT_FILENAME'=>0,'REMOTE_PORT'=>0,'GATEWAY_INTERFACE'=>0,'SERVER_PROTOCOL'=>0,
+        'REQUEST_METHOD'=>0,'QUERY_STRING'=>0,'REQUEST_URI'=>0,'SCRIPT_NAME'=>0,'PHP_SELF'=>0,
+        'REQUEST_TIME'=>0,'argv'=>0,'argc'=>0,'_POST'=>0,'HTTP_POST_VARS'=>0,'_GET'=>0,'HTTP_GET_VARS'=>0,
+        '_COOKIE'=>0,'HTTP_COOKIE_VARS'=>0,'_SERVER'=>0,'HTTP_SERVER_VARS'=>0,
+        '_FILES'=>0,'HTTP_POST_FILES'=>0,'_REQUEST'=>0
     );
 
     public function __construct()
@@ -253,6 +259,7 @@ class Po extends StaticInvokeHelper
         self::$stripTags = (bool)$value;
     }
 
+
     /**
      * 开启侦测Ajax请求, 需在加载页面时开启(而不是在Ajax请求时调用开启)
      * @todo 未完善
@@ -262,7 +269,6 @@ class Po extends StaticInvokeHelper
         if ($value==='end' && PrintHelper::isAjax() ) {
             self::quit();
         } else {
-
             if (self::$detectAjax = (bool)$value) {
                 echo self::_scriptTag();
             }
@@ -271,7 +277,6 @@ class Po extends StaticInvokeHelper
 
 //////////////////////////////// 可用方法 ////////////////////////////////
 
-    ## 调用系统函数打印输出
 
     /**
      * vd === var_dump
@@ -482,6 +487,7 @@ class Po extends StaticInvokeHelper
 
 //////////////////////////////// 输出数据解析 ////////////////////////////////
 
+
     /**
      * 格式化打印数组，含类型 长度 ==var_dump
      * @param mixed $data
@@ -691,8 +697,7 @@ class Po extends StaticInvokeHelper
             }
 
             $outString .= sprintf($usualString,$resourceString);
-        }
-        else {
+        } else {
             $length = null;
 
             if ($data === false) $data = 'false';
@@ -712,6 +717,7 @@ class Po extends StaticInvokeHelper
 
         return $outString.'</dl>'.PHP_EOL;
     }
+
 
 //////////////////////////////// 辅助函数 ////////////////////////////////
 

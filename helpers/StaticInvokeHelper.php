@@ -83,8 +83,15 @@ abstract class StaticInvokeHelper
 
             // return call_user_func_array(array($this,$method), $args);
             return call_user_func_array(array($this,'invoking'), array( $method, $args[0]));
+<<<<<<< HEAD:helpers/StaticInvokeHelper.php
         } else 
             trigger_error('error call! Class method [ '.get_class($this)."::$oldMethod() ] does not exist or not allow access!!",E_USER_ERROR);
+=======
+        }
+        else {
+            trigger_error('error call! Class method [ '.get_class($this)."::$oldMethod() ] does not exist or not allow access!!",E_USER_ERROR);
+        }
+>>>>>>> 9d049e0376d45793f7ca5e7b7a0dea3b9c65f0fb:helpers/StaticInvokeHelper.php
 
         return false;
     }
@@ -131,8 +138,14 @@ abstract class StaticInvokeHelper
             case '2':{
                 $methodPrefix = static::$methodPrefix;
 
+<<<<<<< HEAD:helpers/StaticInvokeHelper.php
                 if (empty($methodPrefix) || !is_string($methodPrefix))
                     trigger_error('请设置方法前缀属性值：$methodPrefix ',E_USER_ERROR);
+=======
+                if (empty($methodPrefix) || !is_string($methodPrefix)) {
+                    trigger_error('请设置方法前缀属性值：$methodPrefix ',E_USER_ERROR);
+                }
+>>>>>>> 9d049e0376d45793f7ca5e7b7a0dea3b9c65f0fb:helpers/StaticInvokeHelper.php
 
                 $methodName = $methodPrefix.ucfirst($method);
                 break;
@@ -141,8 +154,14 @@ abstract class StaticInvokeHelper
             case '3':{
                 $methodSuffix = static::$methodSuffix;
 
+<<<<<<< HEAD:helpers/StaticInvokeHelper.php
                 if (empty($methodSuffix) || !is_string($methodSuffix))
                     trigger_error('请设置方法后缀属性值：$methodSuffix ',E_USER_ERROR);
+=======
+                if (empty($methodSuffix) || !is_string($methodSuffix)) {
+                    trigger_error('请设置方法后缀属性值：$methodSuffix ',E_USER_ERROR);
+                }
+>>>>>>> 9d049e0376d45793f7ca5e7b7a0dea3b9c65f0fb:helpers/StaticInvokeHelper.php
 
                 $methodName = $method.ucfirst($methodSuffix);
                 break;
