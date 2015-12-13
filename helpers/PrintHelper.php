@@ -9,47 +9,6 @@
 class PrintHelper
 {
     /**
-     * 清除标签并格式化数据
-     * @param string $data
-     * @return mixed|string
-     */
-    static public function clearTagAndFormat($data)
-    {
-        if (!$data || !is_string($data)) {
-            return $data;
-        }
-
-        $data = strip_tags($data);
-        $data = str_replace(
-            array('&rArr;', '&gt;'),
-            array('=>', '>'),
-            $data
-        );
-        $data = preg_replace(
-            array( "/[\n\r]+/i", "/Array[\s]*\(/","/=>[\s]+/i" ),
-            array( "\n", 'Array (',"=> " ),
-            $data
-        );
-
-        return $data;
-    }
-
-    static public function simpleFormat($data)
-    {
-        if (!$data || !is_string($data)) {
-            return $data;
-        }
-
-        $data = preg_replace(
-            array( "/[\n\r]+/i", "/Array[\s]*\(/","/=>[\s]+/i" ),
-            array( "\n", 'Array (',"=> " ),
-            $data
-        );
-
-        return $data;
-    }
-
-    /**
      * @param $data
      * @param bool $hasType
      * @return mixed
