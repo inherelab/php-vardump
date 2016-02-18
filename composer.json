@@ -11,6 +11,6 @@
         }
     ],
     "autoload": {
-        "files": ["inhere/simple-printer/functions.php"]
+        "files": ["functions.php"]
     }
 }

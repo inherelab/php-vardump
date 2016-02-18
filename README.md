@@ -15,16 +15,33 @@ a simple php print tool, 简单的php数据打印工具
    vd() / Po::vd()  |       √     |     √      |      X      |  vd()等同于var_dump()
 
 
-## 加载
+## Composer
+
+> use composer
+
+```
+    "require-dev": {
+        "inhere/simple-print-tool": "dev-master"
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://git.oschina.net/inhere/simple-print-tool"
+        }
+    ]
+```
+
+
+## Manual Load - 手动加载
 
 ```php
 // 加载functions.php 既可以函数方式调用也可以 类方法调用
 // 如：  d()  de()  p()  pe()  Po::d() Po::de() Po::p() Po::pe() ....
-include_once './../functions.php';
+include './../functions.php';
 
 
 //也可只加载 Po.php 这时候仅可以用 类方法调用 如： Po::d() Po::de() Po::p() Po::pe() ...
-include_once './../Po.php';
+include './../Po.php';
 
 // simplePrinter.php 则更简单，仅这一个文件，只提供 pr() vd() 两种打印方法。不可与functions.php 同时加载！
 include_once './../simplePrinter.php';
