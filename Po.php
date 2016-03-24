@@ -681,7 +681,10 @@ class Po extends StaticInvokeHelper
             $endTab = substr($tab,0,-($i-1));
             $outString .= "\n</dd><!-- /.general-print-ar-content -->\n</dl>\n<dl><dt><strong>$endTab)</strong></dt>";
         } else if ( is_object($data) ) {
+            // $outString .= PrintHelper::getSystemPrintData($data);
+            $outString .= '<!-- .general-print-ar-content -->'.PHP_EOL.'<dd class="general-print-ar-content">';
             $outString .= PrintHelper::getSystemPrintData($data);
+            $outString .= "\n</dd><!-- /.general-print-ar-content -->\n</dl>\n<dl><dt><strong>  )</strong></dt>";
         } else if (is_resource($data)) {
             if ( ( $dataType = get_resource_type( $data ) ) === 'stream' and $meta = stream_get_meta_data( $data ) ) {
 
@@ -854,4 +857,3 @@ EOF;
     }
 
 }// class end
-
