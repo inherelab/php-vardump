@@ -20,7 +20,7 @@ if (!function_exists('pr'))
         ___getFunctionCalledPosition();
 
         foreach ($param as $key => $value) {
-          $outString .= dump($value,false);
+          $outString .= __dump($value,false);
         }
 
         $exit=false;
@@ -28,7 +28,7 @@ if (!function_exists('pr'))
         if ($last === '_5')
             $exit=true;
         else
-            $outString .=dump($last,false);
+            $outString .= __dump($last,false);
 
         ___output($outString,$exit);
     }
@@ -49,7 +49,7 @@ if (!function_exists('vd'))
         ___getFunctionCalledPosition();
 
         foreach ($param as $value) {
-            $outString .= dump($value,true);
+            $outString .= __dump($value,true);
         }
 
         $exit=false;
@@ -57,7 +57,7 @@ if (!function_exists('vd'))
         if ($last === '_5')
           $exit=true;
         else
-          $outString .=dump($last,true);
+          $outString .= __dump($last,true);
 
         ___output($outString,$exit);
     }
@@ -72,7 +72,7 @@ if (!function_exists('vd'))
         echo $string;
     }
 
-    function dump($data,$hasType=true,$useSystemPrint=true)
+    function __dump($data,$hasType=true,$useSystemPrint=true)
     {
         # 使用系统函数打印
         $outString       = ___getSystemPrintData($data,$hasType);
