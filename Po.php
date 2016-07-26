@@ -176,7 +176,7 @@ class Po extends StaticInvokeHelper
      */
     protected function allowInvokerCall()
     {
-        return array('d','p','de','pe','vd','pr','uc');
+        return array('d','p','de','pe','vd','pr','uc', 'log');
     }
 
     /**
@@ -424,7 +424,7 @@ class Po extends StaticInvokeHelper
      * 默认打印数据保存文件
      * @var string
      */
-    private static $tempFile = 'dump.txt';
+    private static $tempFile = __DIR__ . '/dump.txt';
 
     /**
      * 设置保存输出数据到文件
