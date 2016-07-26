@@ -17,19 +17,29 @@ a simple php print tool, 简单的php数据打印工具
 
 ## Composer
 
-> use composer
+- command
+
+`composer required inhere/simple-print-tool`
+
+- use composer.json
+
+> stable
+
+```
+    "require-dev": {
+        "inhere/simple-print-tool": "~1.0"
+    }
+```
+
+> lastest
 
 ```
     "require-dev": {
         "inhere/simple-print-tool": "dev-master"
-    },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://git.oschina.net/inhere/simple-print-tool"
-        }
-    ]
+    }
 ```
+
+run `composer up`
 
 
 ## Manual Load - 手动加载
