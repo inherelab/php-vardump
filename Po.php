@@ -45,7 +45,8 @@ class Po extends StaticInvokeHelper
 
     static private $jqueryLoc   = '/static/dep/jquery.js';
 
-    static private $jqueryCdn   = 'http://libs.useso.com/js/jquery/2.1.0/jquery.min.js';
+    // static private $jqueryCdn   = 'http://libs.useso.com/js/jquery/2.1.0/jquery.min.js';
+    static private $jqueryCdn   = 'http://cdn.staticfile.org/jquery/2.2.1/jquery.min.js';
 
     /**
      * $disabled 禁用输出，设置后将不会打印数据。
