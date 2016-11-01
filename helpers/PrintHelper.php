@@ -46,7 +46,11 @@ class PrintHelper
             $data
         );
         $data = preg_replace(
-            array( "/[\n\r]+/i", "/Array[\s]*\(/","/=>[\s]+/i" ),
+            array(
+                "/[\n\r]+/i",
+                "/Array[\s]*\(/",
+                "/=>[\s]+/i"
+            ),
             array( "\n", 'Array (',"=> " ),
             $data
         );
@@ -121,8 +125,7 @@ class PrintHelper
                     $content[] = $obj_file->current(); // current()获取当前行内容
                     $obj_file->next(); // 下一行
                }
-            }catch(Exception $e)
-            {
+            }catch(Exception $e) {
               throw new Exception("读取文件--{$fileName} 发生错误！");
             }
 
@@ -149,11 +152,38 @@ class PrintHelper
         return array_filter($content); // array_filter过滤：false,null,''
     }
 
-    // 命令模式
-    public static function isCliMode()
+    /**
+     * isWeb
+     * @return  boolean
+     */
+    public static function isWeb()
     {
-       // return PHP_SAPI === 'cli' ? true : false;
-       return php_sapi_name() === 'cli';
+        return in_array(
+            PHP_SAPI,
+            array(
+                'apache',
+                'cgi',
+                'fast-cgi',
+                'cgi-fcgi',
+                'fpm-fcgi',
+                'srv'
+            )
+        );
+    }
+
+    /**
+     * isCli
+     * @return  boolean
+     */
+    public static function isCli()
+    {
+        return in_array(
+            PHP_SAPI,
+            array(
+                'cli',
+                'cli-server'
+            )
+        );
     }
 
     // ajax 请求
@@ -178,9 +208,37 @@ class PrintHelper
     // 是正常的网络请求 get post
     public static function isWebRequest()
     {
-        return !self::isCliMode() && !self::isAjax() && !self::isFlash();
+        return !self::isCli() && !self::isAjax() && !self::isFlash();
     }
 
+    /**
+     * Returns true if STDOUT supports colorization.
+     * This code has been copied and adapted from
+     * \Symfony\Component\Console\Output\OutputStream.
+     * @return boolean
+     */
+    public static function hasColorSupport()
+    {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            return false !== getenv('ANSICON') || 'ON' === getenv('ConEmuANSI');
+        }
+
+        if (!defined('STDOUT')) {
+            return false;
+        }
+
+        return self::isInteractive(STDOUT);
+    }
+
+    /**
+     * Returns if the file descriptor is an interactive terminal or not.
+     * @param  int|resource $fileDescriptor
+     * @return boolean
+     */
+    public static function isInteractive($fileDescriptor)
+    {
+        return function_exists('posix_isatty') && @posix_isatty($fileDescriptor);
+    }
 
     public static function varExport($var, $return=false, $length=200)
     {

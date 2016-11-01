@@ -28,7 +28,7 @@
  * 若使用了命名空间 类方法调用 需在最前加上'\'。 @example \Po::d($arg1,$arg2,$arg3,...);
  **/
 
-include __DIR__.'/helpers/PrintHelper.php';
+include_once __DIR__.'/helpers/PrintHelper.php';
 include __DIR__.'/helpers/StaticInvokeHelper.php';
 
 class Po extends StaticInvokeHelper
@@ -74,7 +74,6 @@ class Po extends StaticInvokeHelper
      * @var bool
      */
     static private $stripTags     = false;
-
 
     // 标记打印调用后是否退出程序
     private $exit    = false;
@@ -224,7 +223,9 @@ class Po extends StaticInvokeHelper
             $outputData = $positionData.$outputData;
         }
 
-        if ( !PrintHelper::isWebRequest() ) {
+        if ( PrintHelper::isCli() && PrintHelper::hasColorSupport() ) {
+            $outputData .= "\n\033[46;37m <<<<<< $methodName() print out end ...... \033[0m\n";
+        } else if ( !PrintHelper::isWebRequest() )  {
             $outputData .= "\n<<<<<< $methodName() print out end ......\n";
         }
 
@@ -264,6 +265,7 @@ class Po extends StaticInvokeHelper
     /**
      * 开启侦测Ajax请求, 需在加载页面时开启(而不是在Ajax请求时调用开启)
      * @todo 未完善
+     * @param bool $value
      */
     static public function detectAjax($value=true)
     {
@@ -756,7 +758,12 @@ class Po extends StaticInvokeHelper
         # ajax cli flash
         if (!PrintHelper::isWebRequest() || self::$stripTags ) {
             $positionInfo       = str_replace($this->rootPath, '<ROOT>', $positionInfo);
-            $this->positionData = "\n>>>>>> The method $positionInfo\n\n";
+
+            if ( PrintHelper::isCli() && PrintHelper::hasColorSupport() ) {
+                $this->positionData = "\n\033[46;37m >>>>>> The method $positionInfo\033[0m\n";
+            } else {
+                $this->positionData = "\n>>>>>> The method $positionInfo\n";
+            }
 
             return $this;
         }
@@ -767,7 +774,7 @@ class Po extends StaticInvokeHelper
         # 加载样式和jQuery。 TODO: 同一个页面只加载一次样式和jQuery
         if (!self::$hasStyle) {
             $positionData      .= self::_styleTag().PHP_EOL.self::_scriptTag();
-            self::$hasStyle     =true;
+            self::$hasStyle     = true;
         }
 
         #
