@@ -86,10 +86,10 @@ class PrintHelper
     // 计算字符长度
     public static function strLength($str)
     {
-        if ( $str==='0' || $str === 0 ) 
+        if ( $str==='0' || $str === 0 )
             return '1';
 
-        if ( empty($str) ) 
+        if ( empty($str) )
             return '0';
 
         if (function_exists('mb_strlen')) {
@@ -166,7 +166,8 @@ class PrintHelper
                 'fast-cgi',
                 'cgi-fcgi',
                 'fpm-fcgi',
-                'srv'
+                'srv',
+                'cli-server'
             )
         );
     }
@@ -181,7 +182,6 @@ class PrintHelper
             PHP_SAPI,
             array(
                 'cli',
-                'cli-server'
             )
         );
     }
