@@ -427,7 +427,7 @@ class Po extends StaticInvokeHelper
      * 默认打印数据保存文件
      * @var string
      */
-    private static $tempFile = __DIR__ . '/dump.txt';
+    private static $tempFile = 'dump.txt';
 
     /**
      * 设置保存输出数据到文件
@@ -460,7 +460,7 @@ class Po extends StaticInvokeHelper
      * @internal param bool $return description]
      * @return void
      */
-    protected function uc()
+    protected function puc()
     {
         $const = get_defined_constants(true);
 

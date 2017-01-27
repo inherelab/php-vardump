@@ -57,6 +57,6 @@ if (!function_exists('vd'))
 if (!function_exists('puc'))
 {
     function puc() {
-        return Po::uc();
+        return Po::owner()->puc();
     }
 }
