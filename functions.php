@@ -1,6 +1,8 @@
 <?php
 
-!class_exists('Po',false) && include_once __DIR__.'/Po.php';
+if (!class_exists('Po',false) ) {
+    require_once __DIR__.'/Po.php';
+}
 
 /**
 * 打印输出, 函数方式调用
@@ -9,7 +11,7 @@ if (!function_exists('p'))
 {
     function p()
     {
-      Po::owner()->p(func_get_args());
+      Po::own()->p(func_get_args());
     }
 }
 
@@ -17,7 +19,7 @@ if (!function_exists('pe'))
 {
     function pe()
     {
-      Po::owner()->pe(func_get_args());
+      Po::own()->pe(func_get_args());
     }
 }
 
@@ -25,7 +27,7 @@ if (!function_exists('d'))
 {
     function d()
     {
-      Po::owner()->d(func_get_args());
+      Po::own()->d(func_get_args());
     }
 }
 
@@ -33,7 +35,7 @@ if (!function_exists('de'))
 {
     function de()
     {
-      Po::owner()->de(func_get_args());
+      Po::own()->de(func_get_args());
     }
 }
 
@@ -41,7 +43,7 @@ if (!function_exists('pr'))
 {
     function pr()
     {
-      Po::owner()->pr(func_get_args());
+      Po::own()->pr(func_get_args());
     }
 }
 
@@ -49,7 +51,7 @@ if (!function_exists('vd'))
 {
     function vd()
     {
-      Po::owner()->vd(func_get_args());
+      Po::own()->vd(func_get_args());
     }
 }
 
@@ -57,6 +59,6 @@ if (!function_exists('vd'))
 if (!function_exists('puc'))
 {
     function puc() {
-        return Po::owner()->puc();
+        return Po::own()->puc();
     }
 }

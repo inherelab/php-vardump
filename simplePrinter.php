@@ -1,170 +1,166 @@
 <?php
-if (!headers_sent())
+if (!headers_sent()) {
     header('content-Type:text/html;charset=utf-8');
+}
 
 static $__print_style_out_mark = FALSE;
 
-if (!function_exists('pr'))
-{
+if (!function_exists('spr')) {
     /**
-     * [vd === print_r 但支持传入多个参数]
+     * spr === print_r 但支持传入多个参数
      * @internal param string $value [description]
      * @return void [type]        [description]
      */
-    function pr()
+    function spr()
     {
-        $param     = func_get_args();
+        $param = func_get_args();
         $outString = '';
-        $last      = array_pop($param);
+        $last = array_pop($param);
 
         ___getFunctionCalledPosition();
 
         foreach ($param as $key => $value) {
-          $outString .= __dump($value,false);
+            $outString .= __dump($value, false);
         }
 
-        $exit=false;
+        $exit = false;
 
-        if ($last === '_5')
-            $exit=true;
+        if ($last === -4)
+            $exit = true;
         else
-            $outString .= __dump($last,false);
+            $outString .= __dump($last, false);
 
-        ___output($outString,$exit);
+        ___output($outString, $exit);
     }
 }
 
-if (!function_exists('vd'))
-{
+if (!function_exists('svd')) {
     /**
      * 多个打印 === var_dump
      * @return void [type] [description]
      */
-    function vd()
+    function svd()
     {
-        $param     = func_get_args();
-        $last      = array_pop($param);
+        $param = func_get_args();
+        $last = array_pop($param);
         $outString = '';
 
         ___getFunctionCalledPosition();
 
         foreach ($param as $value) {
-            $outString .= __dump($value,true);
+            $outString .= __dump($value);
         }
 
-        $exit=false;
+        $exit = false;
 
-        if ($last === '_5')
-          $exit=true;
+        if ($last === -4)
+            $exit = true;
         else
-          $outString .= __dump($last,true);
+            $outString .= __dump($last);
 
-        ___output($outString,$exit);
+        ___output($outString, $exit);
     }
 }
 
-    function ___output($string, $exit=false)
-    {
-        if ($exit) {
-            exit($string);
-        }
-
-        echo $string;
+function ___output($string, $exit = false)
+{
+    if ($exit) {
+        exit($string);
     }
 
-    function __dump($data,$hasType=true,$useSystemPrint=true)
-    {
-        # 使用系统函数打印
-        $outString       = ___getSystemPrintData($data,$hasType);
-        $outString  = trim($outString);
+    echo $string;
+}
 
-        unset($hasType,$data);
+function __dump($data, $hasType = true)
+{
+    # 使用系统函数打印
+    $outString = ___getSystemPrintData($data, $hasType);
+    $outString = trim($outString);
 
-        $output = "<!-- output print start -->";
-        $output .= "\n<div class=\"general-print-box general-print-font general-print-shadow\">\n%s\n</div>\n";
-        $output .= "<!-- output print end -->";
+    $output = '<!-- output print start -->';
+    $output .= "\n<div class=\"general-print-box general-print-font general-print-shadow\">\n%s\n</div>\n";
+    $output .= '<!-- output print end -->';
 
-        if ( preg_match('/^<pre[\s]*/i', $outString)!=1 ) {
-            $outString  = "<pre>$outString</pre>";
-        }
-
-        $output = sprintf($output,$outString);
-
-        return $output;
+    if (preg_match('/^<pre[\s]*/i', $outString) !== 1) {
+        $outString = "<pre>$outString</pre>";
     }
 
-    /**
-     * @param String $var 要查找的变量
-     * @param Array $scope 要搜寻的范围
-     * @return mixed
-     */
-    function get_variable_name(&$var, $scope=null){
+    $output = sprintf($output, $outString);
 
-        $scope  = $scope==null? $GLOBALS : $scope; // 如果没有范围则在globals中找寻
+    return $output;
+}
 
-        // 因有可能有相同值的变量,因此先将当前变量的值保存到一个临时变量中,
-        // 然后再对原变量赋唯一值,以便查找出变量的名称,找到名字后,将临时变量的值重新赋值到原变量
-        $tmp    = $var;
+/**
+ * @param string $var 要查找的变量
+ * @param array $scope 要搜寻的范围
+ * @return mixed
+ */
+function get_variable_name(&$var, array $scope = null)
+{
 
-        $var    = 'tmp_value_'.mt_rand();
-        $name   = array_search($var, $scope, true); // 根据值查找变量名称
+    $scope = $scope ?: $GLOBALS; // 如果没有范围则在globals中找寻
 
-        $var    = $tmp;
-        return $name;
+    // 因有可能有相同值的变量,因此先将当前变量的值保存到一个临时变量中,
+    // 然后再对原变量赋唯一值,以便查找出变量的名称,找到名字后,将临时变量的值重新赋值到原变量
+    $tmp = $var;
+    $var = 'tmp_value_' . mt_rand();
+    $name = array_search($var, $scope, true); // 根据值查找变量名称
+    $var = $tmp;
+
+    return $name;
+}
+
+function ___getSystemPrintData($data, $hasType = true)
+{
+    $fun = $hasType ? 'var_dump' : 'print_r';
+
+    ob_start();
+    $fun($data);
+    $string = ob_get_clean();
+    $string = str_replace("=>\n ", '=>', $string);
+
+    return $string;
+}
+
+function ___getFunctionCalledPosition($backNum = 2, $separator = '#1', $return = false)
+{
+    global $__print_style_out_mark;
+
+    ob_start();
+    if ($phpGt54 = version_compare(PHP_VERSION, '5.4.0', '>=')) {
+        debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $backNum);
+    } else {
+        debug_print_backtrace(false);
+    }
+    $positionInfo = ob_get_clean();
+    $positionInfo = strstr($positionInfo, $separator);
+
+    if (!$phpGt54) {
+        $positionInfo = strstr($positionInfo, ' called at ');
+        $positionInfo = strstr($positionInfo, '#2 ', true);
     }
 
-    function ___getSystemPrintData($data,$hasType=true)
-    {
-        $fun = $hasType ? 'var_dump' : 'print_r';
+    $positionInfo = trim(str_replace(array("\n", $separator), '', $positionInfo));
+    $positionInfo = str_replace('\\', '/', $positionInfo);
+    $root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
+    $positionInfo = str_replace($root, '&lt;-ROOT-&gt;', $positionInfo);
 
-        ob_start();
-        $fun($data);
-        $string   = ob_get_clean();
-        $string   = str_replace("=>\n ", "=>", $string);
-
-        return $string;
+    if ($return) {
+        return $positionInfo;
     }
 
-    function ___getFunctionCalledPosition($backNum=2,$separator='#1',$return = false)
-    {
-        global $__print_style_out_mark;
+    if (!$__print_style_out_mark) {
+        $__print_style_out_mark = true;
 
-        ob_start();
-        if ( $phpGt54 = version_compare(PHP_VERSION, '5.4.0', '>=')) {
-            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,$backNum);
-        } else {
-            debug_print_backtrace(false);
-        }
-
-        $positionInfo = ob_get_clean();
-        $positionInfo = strstr($positionInfo, $separator);
-
-        if ( !$phpGt54 ) {
-            $positionInfo = strstr($positionInfo, ' called at ');
-            $positionInfo = strstr($positionInfo, '#2 ',true);
-        }
-
-        $positionInfo = trim(str_replace(array("\n",$separator), '', $positionInfo));
-        $positionInfo = str_replace('\\', '/', $positionInfo);
-        $root         = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']);
-        $positionInfo = str_replace($root, '&lt;-ROOT-&gt;', $positionInfo);
-
-        if ($return) {
-            return $positionInfo;
-        }
-
-        if (!$__print_style_out_mark) {
-            $__print_style_out_mark = true;
-
-            echo ___cssOut();//,loadJQuery()
-        }
-
-        echo "<div class=\"general-print-pos general-print-font\">本次打印调用位置：$positionInfo</div>\n";
+        echo ___output_css();//,loadJQuery()
     }
 
-    function ___cssOut($value='')
-    {
-          return <<<EOF
+    echo "<div class=\"general-print-pos general-print-font\">本次打印调用位置：$positionInfo</div>\n";
+}
+
+function ___output_css()
+{
+    return <<<EOF
           <style>
     .general-print-shadow {
         box-shadow: 1px 1px 10px #E8E6E3 inset,-1px 1px 2px #BBB9A6;
@@ -179,4 +175,4 @@ if (!function_exists('vd'))
     </style>
 EOF;
 
-    }
+}

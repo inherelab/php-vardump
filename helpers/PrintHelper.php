@@ -1,11 +1,11 @@
 <?php
+
 /**
  * Created by sublime 3.
  * Auth: Inhere
  * Date: 15-1-20
  * Time: 10:35
  */
-
 class PrintHelper
 {
     /**
@@ -13,16 +13,16 @@ class PrintHelper
      * @param bool $hasType
      * @return mixed
      */
-    public static function getSystemPrintData($data,$hasType=true)
+    public static function getSystemPrintData($data, $hasType = true)
     {
         $fun = $hasType ? 'var_dump' : 'print_r';
 
         ob_start();
         $fun($data);
-        $string     = ob_get_clean();
+        $string = ob_get_clean();
 
-        if ( self::isWebRequest() && preg_match('/^<pre[\s]*/i', $string)!=1 ) {
-            $string  = "<pre>$string</pre>";
+        if (self::isWebRequest() && preg_match('/^<pre[\s]*/i', $string) !== 1) {
+            $string = "<pre>$string</pre>";
         }
 
         return self::simpleFormat($string);
@@ -51,7 +51,7 @@ class PrintHelper
                 "/Array[\s]*\(/",
                 "/=>[\s]+/i"
             ),
-            array( "\n", 'Array (',"=> " ),
+            array("\n", 'Array (', '=> '),
             $data
         );
 
@@ -65,8 +65,8 @@ class PrintHelper
         }
 
         $data = preg_replace(
-            array( "/[\n\r]+/i", "/Array[\s]*\(/","/=>[\s]+/i" ),
-            array( "\n", 'Array (',"=> " ),
+            array("/[\n\r]+/i", "/Array[\s]*\(/", "/=>[\s]+/i"),
+            array("\n", 'Array (', '=> '),
             $data
         );
 
@@ -75,27 +75,27 @@ class PrintHelper
 
     public static function versionCheck()
     {
-        # code...
-        $re = version_compare(PHP_VERSION, '5.4.0') >= 0;
+        $re = version_compare(PHP_VERSION, '5.6.0') >= 0;
 
         if (!$re) {
-            exit('你的PHP版本是：'.PHP_VERSION.'；要求PHP>=5.4!');
+            exit('你的PHP版本是：' . PHP_VERSION . '；要求PHP>=5.6!');
         }
     }
 
     // 计算字符长度
     public static function strLength($str)
     {
-        if ( $str==='0' || $str === 0 )
+        if ($str === '0' || $str === 0)
             return '1';
 
-        if ( empty($str) )
+        if (empty($str))
             return '0';
 
         if (function_exists('mb_strlen')) {
-            return mb_strlen($str,'utf-8');
+            return mb_strlen($str, 'utf-8');
         } else {
             preg_match_all("/./u", $str, $arr);
+
             return count($arr[0]);
         }
     }
@@ -115,25 +115,25 @@ class PrintHelper
 
         // 判断php版本（因为要用到SplFileObject，PHP>=5.1.0）
         if (version_compare(PHP_VERSION, '5.1.0', '>=')) {
-            $count    = $endLine - $startLine;
+            $count = $endLine - $startLine;
 
-            try{
+            try {
                 $obj_file = new \SplFileObject($fileName, $method);
                 $obj_file->seek($startLine - 1); // 转到第N行, seek方法参数从0开始计数
 
                 for ($i = 0; $i <= $count; ++$i) {
                     $content[] = $obj_file->current(); // current()获取当前行内容
                     $obj_file->next(); // 下一行
-               }
-            }catch(Exception $e) {
-              throw new Exception("读取文件--{$fileName} 发生错误！");
+                }
+            } catch (Exception $e) {
+                throw new Exception("读取文件--{$fileName} 发生错误！");
             }
 
         } else { //PHP<5.1
-            $openFile   = fopen($fileName, $method);
+            $openFile = fopen($fileName, $method);
 
             if (!$openFile) {
-                exit('error:can not read file--'.$fileName);
+                exit('error:can not read file--' . $fileName);
             }
 
             // 跳过前$startLine行
@@ -189,20 +189,20 @@ class PrintHelper
     // ajax 请求
     public static function isAjax()
     {
-       return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest';
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
     }
 
     // flash 请求
     public static function isFlash()
     {
-       return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && stripos($_SERVER['HTTP_X_REQUESTED_WITH'],'Shockwave')!==false;
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && stripos($_SERVER['HTTP_X_REQUESTED_WITH'], 'Shockwave') !== false;
     }
 
     public static function getIsFlash()
     {
-        $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT']: null;
+        $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
 
-        return $userAgent && (stripos($userAgent,'Shockwave')!==false || stripos($userAgent,'Flash')!==false);
+        return $userAgent && (stripos($userAgent, 'Shockwave') !== false || stripos($userAgent, 'Flash') !== false);
     }
 
     // 是正常的网络请求 get post
@@ -240,18 +240,18 @@ class PrintHelper
         return function_exists('posix_isatty') && @posix_isatty($fileDescriptor);
     }
 
-    public static function varExport($var, $return=false, $length=200)
+    public static function varExport($var, $return = false, $length = 200)
     {
-        $string = var_export($var,true);
+        $string = var_export($var, true);
 
         if (is_object($var)) {
-            $string = str_replace(array('::__set_state(',"=> \n"),array('(Object) ',"=>"),$string);
+            $string = str_replace(array('::__set_state(', "=> \n"), array('(Object) ', "=>"), $string);
         }
 
         $string = trim($string);
 
         if ($return) {
-            return strlen($string)>$length ? substr($string, 0,$length).'...' : $string;
+            return strlen($string) > $length ? substr($string, 0, $length) . '...' : $string;
         } else {
             echo $string;
         }

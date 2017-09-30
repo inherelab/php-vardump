@@ -10,7 +10,13 @@
             "email": "in.798@qq.com"
         }
     ],
+    "require": {
+        "php": ">=5.6"
+    },
     "autoload": {
-        "files": ["functions.php"]
+        "files": ["functions.php", "simplePrinter.php"],
+        "classmap": [
+            "Po.php"
+        ]
     }
 }
