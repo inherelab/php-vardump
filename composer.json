@@ -16,7 +16,7 @@
     "autoload": {
         "files": ["functions.php", "simplePrinter.php"],
         "classmap": [
-            "Po.php"
+            "Spt.php"
         ]
     }
 }
