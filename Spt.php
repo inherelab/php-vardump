@@ -658,10 +658,15 @@ class Spt
 //////////////////////////////// 辅助函数 ////////////////////////////////
 
     // 得到函数的调用位置，以免调用太多，找不到调用打印的地方
+    /**
+     * @param int $backNum
+     * @param string $separator
+     * @return mixed
+     */
     public function calledPosition($backNum = 6, $separator = '#5')
     {
         if (!headers_sent()) {
-            @header('Content-Type: text/html; charset=UTF-8');
+            header('Content-Type: text/html; charset=UTF-8');
         }
 
         if (self::$disabled) {
