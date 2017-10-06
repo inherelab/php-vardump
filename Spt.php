@@ -318,7 +318,7 @@ class Spt
      * @param array $vars
      * @return void
      */
-    protected function p(...$vars)
+    public function p(...$vars)
     {
         self::own()->processing($vars, 'p', false);
     }
@@ -327,7 +327,7 @@ class Spt
      * 多个打印,会退出
      * @param array $vars
      */
-    protected function pe(...$vars)
+    public function pe(...$vars)
     {
         self::own()->processing($vars, 'pe', false);
     }
@@ -336,7 +336,7 @@ class Spt
      * pr === print_r 但支持传入多个参数
      * @param array $vars
      */
-    protected function pr(...$vars)
+    public function pr(...$vars)
     {
         self::own()->processing($vars, 'pr', false, true);
     }
@@ -348,7 +348,7 @@ class Spt
      * d($arg1,$arg2,$arg3,...)
      * @param array $vars
      */
-    protected function d(...$vars)
+    public function d(...$vars)
     {
         self::own()->processing($vars, 'd');
     }
@@ -357,7 +357,7 @@ class Spt
      * 同d(),但是打印后会立即退出程序；最后一个若为 _5 则放弃退出
      * @param array $vars
      */
-    protected function de(...$vars)
+    public function de(...$vars)
     {
         self::own()->processing($vars, 'de');
     }
@@ -391,7 +391,7 @@ class Spt
      */
     private static $appendData = true;
 
-    protected function log(...$vars)
+    public function log(...$vars)
     {
         $str = PHP_EOL;
 
@@ -407,7 +407,7 @@ class Spt
      * @internal param bool $return description]
      * @return void
      */
-    protected function puc()
+    public function puc()
     {
         $const = get_defined_constants(true);
 
