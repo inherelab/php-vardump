@@ -654,7 +654,6 @@ class Spt
         return $outString . '</dl>' . PHP_EOL;
     }
 
-
 //////////////////////////////// 辅助函数 ////////////////////////////////
 
     // 得到函数的调用位置，以免调用太多，找不到调用打印的地方
@@ -663,7 +662,7 @@ class Spt
      * @param string $separator
      * @return mixed
      */
-    public function calledPosition($backNum = 6, $separator = '#5')
+    public function calledPosition($backNum = 4, $separator = '#3')
     {
         if (!headers_sent()) {
             header('Content-Type: text/html; charset=UTF-8');
@@ -674,7 +673,7 @@ class Spt
         }
 
         ob_start();
-        if ($phpGt54 = version_compare(PHP_VERSION, '5.4.0', '>=')) {
+        if ($phpGt54 = (PHP_VERSION_ID >= 50400)) {
             debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $backNum);
         } else {
             debug_print_backtrace(false);
@@ -714,10 +713,10 @@ class Spt
         }
 
         #
-        $tips = !static::$hidden ? '' : '本次打印数据已隐藏,请点击右侧开关按钮显示数据。';
+        $tips = !static::$hidden ? '' : '打印数据已隐藏,请点击右侧开关按钮显示数据。';
         $positionData .= <<<EOF
 <div class="general-print-pos general-print-font">
-  <p class="js-general-pos-info general-pos-info" style="display:inline-block;">本次打印调用位置：$positionInfo <span class="general-print-tips">$tips</span></p>
+  <p class="js-general-pos-info general-pos-info" style="display:inline-block;">调用位置：$positionInfo <span class="general-print-tips">$tips</span></p>
   <span class="general-print-help">?</span>
   <span class="general-print-code">&equiv;</span>
   <span class="general-print-switch js-general-print-switch">&otimes;</span>

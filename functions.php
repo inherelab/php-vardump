@@ -54,6 +54,6 @@ if (!function_exists('vd'))
 if (!function_exists('puc'))
 {
     function puc() {
-        return Spt::own()->puc();
+        Spt::own()->puc();
     }
 }
