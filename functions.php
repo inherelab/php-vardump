@@ -4,49 +4,49 @@
 */
 if (!function_exists('p'))
 {
-    function p()
+    function p(...$vars)
     {
-      Spt::own()->p(func_get_args());
+      Spt::own()->p(...$vars);
     }
 }
 
 if (!function_exists('pe'))
 {
-    function pe()
+    function pe(...$vars)
     {
-      Spt::own()->pe(func_get_args());
+      Spt::own()->pe(...$vars);
     }
 }
 
 if (!function_exists('d'))
 {
-    function d()
+    function d(...$vars)
     {
-      Spt::own()->d(func_get_args());
+      Spt::own()->d(...$vars);
     }
 }
 
 if (!function_exists('de'))
 {
-    function de()
+    function de(...$vars)
     {
-      Spt::own()->de(func_get_args());
+      Spt::own()->de(...$vars);
     }
 }
 
 if (!function_exists('pr'))
 {
-    function pr()
+    function pr(...$vars)
     {
-      Spt::own()->pr(func_get_args());
+      Spt::own()->pr(...$vars);
     }
 }
 
 if (!function_exists('vd'))
 {
-    function vd()
+    function vd(...$vars)
     {
-      Spt::own()->vd(func_get_args());
+      Spt::own()->vd(...$vars);
     }
 }
 

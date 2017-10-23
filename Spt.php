@@ -662,7 +662,7 @@ class Spt
      * @param string $separator
      * @return mixed
      */
-    public function calledPosition($backNum = 4, $separator = '#3')
+    public function calledPosition($backNum = 4, $separator = '#3 ')
     {
         if (!headers_sent()) {
             header('Content-Type: text/html; charset=UTF-8');
@@ -673,37 +673,26 @@ class Spt
         }
 
         ob_start();
-        if ($phpGt54 = (PHP_VERSION_ID >= 50400)) {
-            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $backNum);
-        } else {
-            debug_print_backtrace(false);
-        }
+        debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $backNum);
+        $position = ob_get_clean();
 
-        $positionInfo = ob_get_clean();
-        $positionInfo = strstr($positionInfo, $separator);
-
-        if (!$phpGt54) {
-            $positionInfo = strstr($positionInfo, ' called at ');
-            $positionInfo = strstr($positionInfo, "]\n#", true) . ']';
-        }
-
-        $positionInfo = trim(str_replace(array("\n", $separator), '', $positionInfo));
-        $positionInfo = str_replace('\\', '/', $positionInfo);
+        $position = str_replace(array("\n", $separator), '', strstr($position, $separator));
+        $position = trim(str_replace('\\', '/', $position));
 
         # ajax cli flash
         if (self::$stripTags || !PrintHelper::isWebRequest()) {
-            $positionInfo = str_replace($this->rootPath, '<ROOT>', $positionInfo);
+            $position = str_replace($this->rootPath, '<ROOT>', $position);
 
             if (PrintHelper::isCli() && PrintHelper::hasColorSupport()) {
-                $this->positionData = "\n\033[46;37m >>>>>> The method $positionInfo\033[0m\n";
+                $this->positionData = "\n\033[46;37m >>>>>> The method $position\033[0m\n";
             } else {
-                $this->positionData = "\n>>>>>> The method $positionInfo\n";
+                $this->positionData = "\n>>>>>> The method $position\n";
             }
 
             return $this;
         }
 
-        $positionInfo = str_replace($this->rootPath, '&lt;ROOT&gt;', $positionInfo);
+        $position = str_replace($this->rootPath, '&lt;ROOT&gt;', $position);
         $positionData = '';
 
         # 加载样式和jQuery。 TODO: 同一个页面只加载一次样式和jQuery
@@ -716,7 +705,7 @@ class Spt
         $tips = !static::$hidden ? '' : '打印数据已隐藏,请点击右侧开关按钮显示数据。';
         $positionData .= <<<EOF
 <div class="general-print-pos general-print-font">
-  <p class="js-general-pos-info general-pos-info" style="display:inline-block;">调用位置：$positionInfo <span class="general-print-tips">$tips</span></p>
+  <p class="js-general-pos-info general-pos-info" style="display:inline-block;">调用位置：$position <span class="general-print-tips">$tips</span></p>
   <span class="general-print-help">?</span>
   <span class="general-print-code">&equiv;</span>
   <span class="general-print-switch js-general-print-switch">&otimes;</span>
