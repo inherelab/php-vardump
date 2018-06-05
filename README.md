@@ -31,7 +31,7 @@ a simple php print tool, 简单的php数据打印工具
     }
 ```
 
-> lastest
+> latest
 
 ```
     "require-dev": {
@@ -49,7 +49,6 @@ run `composer up`
 // 如：  d()  de()  p()  pe()  Spt::d() Spt::de() Spt::p() Spt::pe() ....
 include './../functions.php';
 
-
 //也可只加载 Po.php 这时候仅可以用 类方法调用 如： Spt::d() Spt::de() Spt::p() Spt::pe() ...
 include './../Po.php';
 
@@ -57,9 +56,7 @@ include './../Po.php';
 include_once './../simplePrinter.php';
 ```
 
-
 ##效果
-<a href="https://raw.githubusercontent.com/inhere/simple-print-tool/master/test/test1.jpg" target="_blank">
-![alt text](https://raw.githubusercontent.com/inhere/simple-print-tool/master/test/test1.jpg "Title")
-</a>
+
+![example](examples/test1.jpg)
 

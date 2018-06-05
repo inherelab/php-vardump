@@ -3,7 +3,7 @@ if (!headers_sent()) {
     header('content-Type:text/html;charset=utf-8');
 }
 
-static $__print_style_out_mark = FALSE;
+static $__print_style_out_mark = false;
 
 if (!function_exists('spr')) {
     /**
@@ -25,10 +25,11 @@ if (!function_exists('spr')) {
 
         $exit = false;
 
-        if ($last === -4)
+        if ($last === -4) {
             $exit = true;
-        else
+        } else {
             $outString .= __dump($last, false);
+        }
 
         ___output($outString, $exit);
     }
@@ -53,10 +54,11 @@ if (!function_exists('svd')) {
 
         $exit = false;
 
-        if ($last === -4)
+        if ($last === -4) {
             $exit = true;
-        else
+        } else {
             $outString .= __dump($last);
+        }
 
         ___output($outString, $exit);
     }
@@ -127,18 +129,14 @@ function ___getFunctionCalledPosition($backNum = 2, $separator = '#1', $return =
     global $__print_style_out_mark;
 
     ob_start();
-    if ($phpGt54 = version_compare(PHP_VERSION, '5.4.0', '>=')) {
-        debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $backNum);
-    } else {
-        debug_print_backtrace(false);
-    }
+    debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $backNum);
     $positionInfo = ob_get_clean();
     $positionInfo = strstr($positionInfo, $separator);
 
-    if (!$phpGt54) {
-        $positionInfo = strstr($positionInfo, ' called at ');
-        $positionInfo = strstr($positionInfo, '#2 ', true);
-    }
+    // if (!$phpGt54) {
+    //     $positionInfo = strstr($positionInfo, ' called at ');
+    //     $positionInfo = strstr($positionInfo, '#2 ', true);
+    // }
 
     $positionInfo = trim(str_replace(array("\n", $separator), '', $positionInfo));
     $positionInfo = str_replace('\\', '/', $positionInfo);

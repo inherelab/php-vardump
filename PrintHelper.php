@@ -41,17 +41,17 @@ class PrintHelper
 
         $data = strip_tags($data);
         $data = str_replace(
-            array('&rArr;', '&gt;'),
-            array('=>', '>'),
+            ['&rArr;', '&gt;'],
+            ['=>', '>'],
             $data
         );
         $data = preg_replace(
-            array(
+            [
                 "/[\n\r]+/i",
                 "/Array[\s]*\(/",
                 "/=>[\s]+/i"
-            ),
-            array("\n", 'Array (', '=> '),
+            ],
+            ["\n", 'Array (', '=> '],
             $data
         );
 
@@ -65,8 +65,8 @@ class PrintHelper
         }
 
         $data = preg_replace(
-            array("/[\n\r]+/i", "/Array[\s]*\(/", "/=>[\s]+/i"),
-            array("\n", 'Array (', '=> '),
+            ["/[\n\r]+/i", "/Array[\s]*\(/", "/=>[\s]+/i"],
+            ["\n", 'Array (', '=> '],
             $data
         );
 
@@ -85,36 +85,38 @@ class PrintHelper
     // 计算字符长度
     public static function strLength($str)
     {
-        if ($str === '0' || $str === 0)
+        if ($str === '0' || $str === 0) {
             return '1';
-
-        if (empty($str))
-            return '0';
-
-        if (function_exists('mb_strlen')) {
-            return mb_strlen($str, 'utf-8');
-        } else {
-            preg_match_all("/./u", $str, $arr);
-
-            return count($arr[0]);
         }
+
+        if (empty($str)) {
+            return '0';
+        }
+
+        if (\function_exists('mb_strlen')) {
+            return mb_strlen($str, 'utf-8');
+        }
+
+        preg_match_all('/./u', $str, $arr);
+
+        return count($arr[0]);
     }
 
     /**
      * getLines 获取文件一定范围内的内容]
-     * @param  type ]  $fileName  含完整路径的文件]
+     * @param  string  $fileName  含完整路径的文件]
      * @param  integer $startLine 开始行数 默认第1行]
      * @param  integer $endLine 结束行数 默认第50行]
      * @param  string $method 打开文件方式]
      * @throws Exception
      * @return array             返回内容
      */
-    public static function getLines($fileName, $startLine = 1, $endLine = 50, $method = 'rb')
+    public static function getLines($fileName, $startLine = 1, $endLine = 50, $method = 'rb'): array
     {
         $content = array();
 
         // 判断php版本（因为要用到SplFileObject，PHP>=5.1.0）
-        if (version_compare(PHP_VERSION, '5.1.0', '>=')) {
+        if (PHP_VERSION_ID >= 50100) {
             $count = $endLine - $startLine;
 
             try {
@@ -126,7 +128,7 @@ class PrintHelper
                     $obj_file->next(); // 下一行
                 }
             } catch (Exception $e) {
-                throw new Exception("读取文件--{$fileName} 发生错误！");
+                throw new \RuntimeException("读取文件--{$fileName} 发生错误！");
             }
 
         } else { //PHP<5.1
@@ -156,7 +158,7 @@ class PrintHelper
      * isWeb
      * @return  boolean
      */
-    public static function isWeb()
+    public static function isWeb(): bool
     {
         return in_array(
             PHP_SAPI,
@@ -176,29 +178,24 @@ class PrintHelper
      * isCli
      * @return  boolean
      */
-    public static function isCli()
+    public static function isCli(): bool
     {
-        return in_array(
-            PHP_SAPI,
-            array(
-                'cli',
-            )
-        );
+        return 'cli' === PHP_SAPI;
     }
 
     // ajax 请求
-    public static function isAjax()
+    public static function isAjax(): bool
     {
         return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
     }
 
     // flash 请求
-    public static function isFlash()
+    public static function isFlash(): bool
     {
         return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && stripos($_SERVER['HTTP_X_REQUESTED_WITH'], 'Shockwave') !== false;
     }
 
-    public static function getIsFlash()
+    public static function getIsFlash(): bool
     {
         $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
 
@@ -206,7 +203,7 @@ class PrintHelper
     }
 
     // 是正常的网络请求 get post
-    public static function isWebRequest()
+    public static function isWebRequest(): bool
     {
         return !self::isCli() && !self::isAjax() && !self::isFlash();
     }
@@ -217,7 +214,7 @@ class PrintHelper
      * \Symfony\Component\Console\Output\OutputStream.
      * @return boolean
      */
-    public static function hasColorSupport()
+    public static function hasColorSupport(): bool
     {
         if (DIRECTORY_SEPARATOR === '\\') {
             return false !== getenv('ANSICON') || 'ON' === getenv('ConEmuANSI');
@@ -235,27 +232,52 @@ class PrintHelper
      * @param  int|resource $fileDescriptor
      * @return boolean
      */
-    public static function isInteractive($fileDescriptor)
+    public static function isInteractive($fileDescriptor): bool
     {
         return function_exists('posix_isatty') && @posix_isatty($fileDescriptor);
     }
 
-    public static function varExport($var, $return = false, $length = 200)
+    /**
+     * @param $var
+     * @param bool $return
+     * @param int $length
+     * @return string
+     */
+    public static function varExport($var, $return = false, $length = 200): string
     {
         $string = var_export($var, true);
 
         if (is_object($var)) {
-            $string = str_replace(array('::__set_state(', "=> \n"), array('(Object) ', "=>"), $string);
+            $string = str_replace(array('::__set_state(', "=> \n"), array('(Object) ', '=>'), $string);
         }
 
         $string = trim($string);
 
         if ($return) {
             return strlen($string) > $length ? substr($string, 0, $length) . '...' : $string;
-        } else {
-            echo $string;
         }
 
+        echo $string;
+
         return '';
+    }
+
+    /**
+     * @param mixed $v
+     * @return string
+     */
+    public static function getTypeString($v): string
+    {
+        if ($v === false) {
+            $v = 'bool(false)';
+        } elseif ($v === true) {
+            $v = 'bool(true)';
+        } elseif ($v === null) {
+            $v = 'null(null)';
+        } elseif ($v === '') {
+            $v = '""';
+        }
+
+        return $v;
     }
 }

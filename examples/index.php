@@ -2,11 +2,10 @@
 
 // 既可以函数方式调用也可以 类方法调用
 // 如：  d()  de()  p()  pe()  Spt::d() Spt::de() Spt::p() Spt::pe()
-include_once realpath(__DIR__.'/..').'/functions.php';
+include_once dirname(__DIR__).'/functions.php';
 
 //也可只加载 Po.php 这时候仅可以用 类方法调用 如： Spt::d() Spt::de() Spt::p() Spt::pe()
-// include_once realpath(__DIR__.'/..').'/Po.php';
-
+include_once dirname(__DIR__).'/Spt.php';
 
 $d = array(
     false,

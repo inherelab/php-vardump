@@ -28,7 +28,7 @@
  * 若使用了命名空间 类方法调用 需在最前加上'\'。 @example \Spt::d($arg1,$arg2,$arg3,...);
  **/
 
-include_once __DIR__.'/helpers/PrintHelper.php';
+include_once __DIR__.'/PrintHelper.php';
 
 class Spt
 {
@@ -429,7 +429,7 @@ class Spt
      * @return string
      * @internal param bool|int $exit
      */
-    private function dump($data, $hasType = true, $useSystemPrint = false)
+    private function dump($data, $hasType = true, $useSystemPrint = false): string
     {
         $style = '';
 
@@ -465,7 +465,7 @@ class Spt
      * @param string $outString
      * @return string
      */
-    private static function _handleNormalOutput($data, $mark = true, $outString = '')
+    private static function _handleNormalOutput($data, $mark = true, $outString = ''): string
     {
         $html = 'htmlspecialchars';
         $ucfirst = 'ucfirst';
@@ -500,12 +500,7 @@ class Spt
                     $outString .= "<strong>{$count((array)$v)}</strong>)<strong>(</strong></div><span class=\"print-icon icon-hide\"></span>\n</dt>" . PHP_EOL;
                     $outString .= ltrim(self::_handleNormalOutput($v, false), '<dl>');
                 } else {
-
-                    if ($v === false) $v = 'bool(false)';
-                    if ($v === true) $v = 'bool(true)';
-                    if ($v === null) $v = 'null(null)';
-                    if ($v === '') $v = '""';
-
+                    $v = PrintHelper::getTypeString($v);
                     $outString .= "<div class=\"array-value\"> &rArr; <span class=\"general-print-color-r\">{$v}</span> </div></dt>\n</dl>";
                 }
 
@@ -530,12 +525,7 @@ class Spt
 
             $outString .= sprintf($usualString, $resourceString);
         } else {
-
-            if ($data === false) $data = 'bool(false)';
-            if ($data === null) $data = 'null(null)';
-            if ($data === true) $data = 'bool(true)';
-            if ($data === '') $data = '""';
-
+            $data = PrintHelper::getTypeString($data);
             $outString .= '<span class=\"general-print-color-r\">' . sprintf($usualString, $data) . '</span>';
         }
 
@@ -716,7 +706,7 @@ EOF;
         return $this;
     }
 
-    private static function _getTab($n)
+    private static function _getTab($n): string
     {
         $tab = "\t";
         if ($n === 1) {
@@ -730,7 +720,7 @@ EOF;
         return $tab;
     }
 
-    private static function _styleTag()
+    private static function _styleTag(): string
     {
         $css = file_get_contents(__DIR__ . '/static/po.css');
         $css = preg_replace('/\s\s+/', ' ', $css);
@@ -739,7 +729,7 @@ EOF;
         return sprintf($styleTag, $css);
     }
 
-    private static function _scriptTag()
+    private static function _scriptTag(): string
     {
         $find = array(
             '__reallyDetectAjax__', '__controlClass__'
@@ -763,7 +753,7 @@ EOF;
         return sprintf($jsTag, self::_jqueryLoad(), $jsCode);
     }
 
-    public static function _jqueryLoad()
+    public static function _jqueryLoad(): string
     {
         $jqueryCdn = self::$jqueryCdn;
         $jqueryLoc = self::$jqueryLoc;
