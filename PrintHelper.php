@@ -234,7 +234,7 @@ class PrintHelper
      */
     public static function isInteractive($fileDescriptor): bool
     {
-        return function_exists('posix_isatty') && @posix_isatty($fileDescriptor);
+        return \function_exists('posix_isatty') && @\posix_isatty($fileDescriptor);
     }
 
     /**
@@ -245,16 +245,16 @@ class PrintHelper
      */
     public static function varExport($var, $return = false, $length = 200): string
     {
-        $string = var_export($var, true);
+        $string = \var_export($var, true);
 
-        if (is_object($var)) {
-            $string = str_replace(array('::__set_state(', "=> \n"), array('(Object) ', '=>'), $string);
+        if (\is_object($var)) {
+            $string = \str_replace(array('::__set_state(', "=> \n"), array('(Object) ', '=>'), $string);
         }
 
-        $string = trim($string);
+        $string = \trim($string);
 
         if ($return) {
-            return strlen($string) > $length ? substr($string, 0, $length) . '...' : $string;
+            return \strlen($string) > $length ? \substr($string, 0, $length) . '...' : $string;
         }
 
         echo $string;

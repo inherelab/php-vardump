@@ -30,6 +30,9 @@
 
 include_once __DIR__.'/PrintHelper.php';
 
+/**
+ * Class Spt
+ */
 class Spt
 {
     const MIN_PHP_VERSION = '5.6';
@@ -399,7 +402,7 @@ class Spt
             $str .= PrintHelper::getSystemPrintData($var);
         }
 
-        file_put_contents(self::$tempFile, $str, FILE_APPEND);
+        \file_put_contents(self::$tempFile, $str, FILE_APPEND);
     }
 
     /**
@@ -409,7 +412,7 @@ class Spt
      */
     public function puc()
     {
-        $const = get_defined_constants(true);
+        $const = \get_defined_constants(true);
 
         if (!isset($const['user'])) {
             $this->outputData = $this->dump(null);
@@ -472,9 +475,9 @@ class Spt
         $jsClass = self::$controlClass;//' class="js-print-showOrHide"';
         $usualString = "<dt><div class=\"array-value\">\n%s</div></dt>\n";
         $outString .= '<dl>' . PHP_EOL;
-        $dataType = gettype($data);
+        $dataType = \gettype($data);
 
-        if (is_array($data)) {
+        if (\is_array($data)) {
             $count = 'count';
             if ($mark) {
                 $outString = sprintf(
@@ -485,11 +488,11 @@ class Spt
             $outString .= '<!-- .general-print-ar-content -->' . PHP_EOL . '<dd class="general-print-ar-content">';
 
             foreach ($data as $k => $v) {
-                $k = is_int($k) ? $k : "'{$html($k,ENT_QUOTES)}'";
-                $vType = gettype($v);
+                $k = \is_int($k) ? $k : "'{$html($k,ENT_QUOTES)}'";
+                $vType = \gettype($v);
                 $outString .= PHP_EOL . "<dl>\n<dt><div class=\"array-key\">\t$k</div>";
 
-                if (is_array($v) || is_object($v) || is_resource($v)) {
+                if (\is_array($v) || \is_object($v) || \is_resource($v)) {
                     $outString .= "<div class=\"array-value {$jsClass}\"> &rArr; <strong class=\"general-print-color-dg\">{$ucfirst($vType)}</strong>(size:";
 
                     if (empty($v)) {
@@ -738,7 +741,7 @@ EOF;
             'false', static::$controlClass
         );
 
-        $jsCode = file_get_contents(__DIR__ . '/static/po.js');
+        $jsCode = \file_get_contents(__DIR__ . '/static/po.js');
 
         if (self::$detectAjax) {
             $replace = array(

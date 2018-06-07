@@ -1,22 +1,29 @@
 {
-    "name": "inhere/simple-print-tool",
-    "description": "a simple php code format print tool",
-    "keywords": ["print","tool","format"],
-    "homepage": "http://www.yzone.net",
-    "license": "Apache License 2.0",
-    "authors": [
-        {
-            "name": "inhere",
-            "email": "in.798@qq.com"
-        }
-    ],
-    "require": {
-        "php": ">=5.6"
-    },
-    "autoload": {
-        "files": ["functions.php", "simplePrinter.php"],
-        "classmap": [
-            "Spt.php"
-        ]
+  "name": "inhere/simple-print-tool",
+  "description": "a simple php code format print tool",
+  "keywords": [
+    "print",
+    "tool",
+    "format"
+  ],
+  "homepage": "http://www.yzone.net",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "inhere",
+      "email": "in.798@qq.com"
     }
+  ],
+  "require": {
+    "php": ">=5.6"
+  },
+  "autoload": {
+    "files": [
+      "functions.php",
+      "simplePrinter.php"
+    ],
+    "classmap": [
+      "Spt.php"
+    ]
+  }
 }
